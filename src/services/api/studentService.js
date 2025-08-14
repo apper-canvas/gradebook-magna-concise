@@ -21,10 +21,14 @@ this.students = [...studentsData];
   }
 
   // Get category weights configuration
-  getCategoryWeights() {
+getCategoryWeights() {
     return { ...this.categoryWeights };
   }
 
+  setCategoryWeights(newWeights) {
+    this.categoryWeights = { ...newWeights };
+    return { ...this.categoryWeights };
+  }
   // Calculate weighted grade average for a student
   calculateWeightedGrade(grades) {
     if (!grades || grades.length === 0) return 0;
