@@ -1,0 +1,314 @@
+[
+  {
+    "Id": 1,
+    "firstName": "Emma",
+    "lastName": "Johnson",
+    "email": "emma.johnson@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 95.5,
+    "gradeAverage": 92.3,
+    "recentAssignmentScore": 95,
+    "grades": [
+      {
+        "Id": 101,
+        "studentId": "1",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 95,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 102,
+        "studentId": "1",
+        "assignmentName": "Math Homework #12",
+        "score": 88,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 103,
+        "studentId": "1",
+        "assignmentName": "Midterm Exam",
+        "score": 94,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  },
+  {
+    "Id": 2,
+    "firstName": "Michael",
+    "lastName": "Chen",
+    "email": "michael.chen@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 88.2,
+    "gradeAverage": 87.6,
+    "recentAssignmentScore": 82,
+    "grades": [
+      {
+        "Id": 201,
+        "studentId": "2",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 82,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 202,
+        "studentId": "2",
+        "assignmentName": "Math Homework #12",
+        "score": 91,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 203,
+        "studentId": "2",
+        "assignmentName": "Midterm Exam",
+        "score": 89,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  },
+  {
+    "Id": 3,
+    "firstName": "Sarah",
+    "lastName": "Williams",
+    "email": "sarah.williams@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 92.8,
+    "gradeAverage": 94.7,
+    "recentAssignmentScore": 98,
+    "grades": [
+      {
+        "Id": 301,
+        "studentId": "3",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 98,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 302,
+        "studentId": "3",
+        "assignmentName": "Math Homework #12",
+        "score": 92,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 303,
+        "studentId": "3",
+        "assignmentName": "Midterm Exam",
+        "score": 94,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  },
+  {
+    "Id": 4,
+    "firstName": "David",
+    "lastName": "Rodriguez",
+    "email": "david.rodriguez@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 85.3,
+    "gradeAverage": 78.4,
+    "recentAssignmentScore": 75,
+    "grades": [
+      {
+        "Id": 401,
+        "studentId": "4",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 75,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 402,
+        "studentId": "4",
+        "assignmentName": "Math Homework #12",
+        "score": 80,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 403,
+        "studentId": "4",
+        "assignmentName": "Midterm Exam",
+        "score": 79,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  },
+  {
+    "Id": 5,
+    "firstName": "Ashley",
+    "lastName": "Davis",
+    "email": "ashley.davis@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 97.1,
+    "gradeAverage": 91.2,
+    "recentAssignmentScore": 89,
+    "grades": [
+      {
+        "Id": 501,
+        "studentId": "5",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 89,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 502,
+        "studentId": "5",
+        "assignmentName": "Math Homework #12",
+        "score": 93,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 503,
+        "studentId": "5",
+        "assignmentName": "Midterm Exam",
+        "score": 91,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  },
+  {
+    "Id": 6,
+    "firstName": "James",
+    "lastName": "Thompson",
+    "email": "james.thompson@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 91.7,
+    "gradeAverage": 85.9,
+    "recentAssignmentScore": 84,
+    "grades": [
+      {
+        "Id": 601,
+        "studentId": "6",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 84,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 602,
+        "studentId": "6",
+        "assignmentName": "Math Homework #12",
+        "score": 87,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 603,
+        "studentId": "6",
+        "assignmentName": "Midterm Exam",
+        "score": 86,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  },
+  {
+    "Id": 7,
+    "firstName": "Jessica",
+    "lastName": "Martinez",
+    "email": "jessica.martinez@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 89.4,
+    "gradeAverage": 88.3,
+    "recentAssignmentScore": 91,
+    "grades": [
+      {
+        "Id": 701,
+        "studentId": "7",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 91,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 702,
+        "studentId": "7",
+        "assignmentName": "Math Homework #12",
+        "score": 85,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 703,
+        "studentId": "7",
+        "assignmentName": "Midterm Exam",
+        "score": 88,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  },
+  {
+    "Id": 8,
+    "firstName": "Ryan",
+    "lastName": "Anderson",
+    "email": "ryan.anderson@school.edu",
+    "gradeLevel": 10,
+    "attendancePercentage": 93.6,
+    "gradeAverage": 90.1,
+    "recentAssignmentScore": 87,
+    "grades": [
+      {
+        "Id": 801,
+        "studentId": "8",
+        "assignmentName": "Chapter 5 Quiz",
+        "score": 87,
+        "maxScore": 100,
+        "date": "2024-01-15",
+        "category": "Quiz"
+      },
+      {
+        "Id": 802,
+        "studentId": "8",
+        "assignmentName": "Math Homework #12",
+        "score": 92,
+        "maxScore": 100,
+        "date": "2024-01-12",
+        "category": "Homework"
+      },
+      {
+        "Id": 803,
+        "studentId": "8",
+        "assignmentName": "Midterm Exam",
+        "score": 91,
+        "maxScore": 100,
+        "date": "2024-01-10",
+        "category": "Test"
+      }
+    ]
+  }
+]

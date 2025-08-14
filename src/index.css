@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "react-toastify/dist/ReactToastify.css";
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .toast-container {
+    @apply text-sm;
+  }
+  
+  .Toastify__toast {
+    @apply rounded-lg shadow-lg;
+  }
+  
+  .Toastify__toast--success {
+    @apply bg-success-50 text-success-800 border-l-4 border-success-500;
+  }
+  
+  .Toastify__toast--error {
+    @apply bg-error-50 text-error-800 border-l-4 border-error-500;
+  }
+  
+  .Toastify__toast--info {
+    @apply bg-primary-50 text-primary-800 border-l-4 border-primary-500;
+  }
+  
+  .Toastify__progress-bar--success {
+    @apply bg-success-500;
+  }
+  
+  .Toastify__progress-bar--error {
+    @apply bg-error-500;
+  }
+  
+  .Toastify__progress-bar--info {
+    @apply bg-primary-500;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent;
+  }
+  
+  .card-elevation {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .card-elevation-hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .glassmorphism {
+    @apply backdrop-blur-md bg-white/80 border border-white/20;
+  }
+}
