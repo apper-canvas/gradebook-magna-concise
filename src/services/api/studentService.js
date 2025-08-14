@@ -351,6 +351,82 @@ return results;
         runningAverage: Math.round(runningAverage * 10) / 10
       };
     });
+});
+  }
+
+  // Class assignment methods
+  async assignStudentsToClass(studentIds, classId) {
+    await delay(500); // Simulate API call
+    
+    try {
+      // Validate inputs
+      if (!Array.isArray(studentIds) || studentIds.length === 0) {
+        throw new Error("Student IDs must be a non-empty array");
+      }
+      
+      if (!classId || typeof classId !== 'number') {
+        throw new Error("Valid class ID is required");
+      }
+
+      // Update students with new class assignment
+      studentIds.forEach(studentId => {
+        const studentIndex = this.students.findIndex(s => s.Id === studentId);
+        if (studentIndex !== -1) {
+          // Add classId to student's classes array (or create if doesn't exist)
+          if (!this.students[studentIndex].classes) {
+            this.students[studentIndex].classes = [];
+          }
+          
+          // Check if student is already in this class
+          if (!this.students[studentIndex].classes.includes(classId)) {
+            this.students[studentIndex].classes.push(classId);
+          }
+        }
+      });
+
+      return {
+        success: true,
+        assignedCount: studentIds.length,
+        classId
+      };
+    } catch (error) {
+      throw new Error(`Failed to assign students to class: ${error.message}`);
+    }
+  }
+
+  async unassignStudentsFromClass(studentIds, classId) {
+    await delay(300);
+    
+    try {
+      studentIds.forEach(studentId => {
+        const studentIndex = this.students.findIndex(s => s.Id === studentId);
+        if (studentIndex !== -1 && this.students[studentIndex].classes) {
+          this.students[studentIndex].classes = this.students[studentIndex].classes.filter(
+            id => id !== classId
+          );
+        }
+      });
+
+      return {
+        success: true,
+        unassignedCount: studentIds.length,
+        classId
+      };
+    } catch (error) {
+      throw new Error(`Failed to unassign students from class: ${error.message}`);
+    }
+  }
+
+  async getStudentsByClass(classId) {
+    await delay(200);
+    
+    if (classId) {
+      return this.students.filter(student => 
+        student.classes && student.classes.includes(classId)
+      );
+    }
+    
+    return [...this.students];
   }
 }
 

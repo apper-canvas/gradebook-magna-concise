@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import StudentTableRow from "@/components/molecules/StudentTableRow";
 import ApperIcon from "@/components/ApperIcon";
 
-const StudentTable = ({ students, onStudentSelect, selectedStudent, showCheckboxes = false, selectedStudents = new Set(), onStudentToggle, onSelectAll }) => {
+const StudentTable = ({ students, onStudentSelect, selectedStudent, showCheckboxes = false, selectedStudents = new Set(), onStudentToggle, onSelectAll, enableDrag = false, onDragStart }) => {
   const [sortField, setSortField] = useState("lastName");
   const [sortDirection, setSortDirection] = useState("asc");
 
@@ -85,7 +85,7 @@ const StudentTable = ({ students, onStudentSelect, selectedStudent, showCheckbox
             </tr>
           </thead>
 <tbody className="bg-white divide-y divide-slate-200">
-            {sortedStudents.map((student) => (
+{sortedStudents.map((student) => (
               <StudentTableRow
                 key={student.Id}
                 student={student}
@@ -94,6 +94,8 @@ const StudentTable = ({ students, onStudentSelect, selectedStudent, showCheckbox
                 showCheckbox={showCheckboxes}
                 isChecked={selectedStudents.has(student.Id)}
                 onToggle={() => onStudentToggle && onStudentToggle(student.Id)}
+                enableDrag={enableDrag}
+                onDragStart={onDragStart}
               />
             ))}
           </tbody>
