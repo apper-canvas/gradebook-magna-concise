@@ -239,8 +239,6 @@ async getAttendanceForDate(date) {
       student.gradeAverage = 0;
       student.recentAssignmentScore = 0;
     }
-
-    return { ...student };
 return { ...student };
   }
 
