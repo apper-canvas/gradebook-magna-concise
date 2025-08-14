@@ -39,10 +39,13 @@ const ClassSwitcher = () => {
       setIsOpen(false);
 toast.success(`Switched to ${newActiveClass.name}`);
       
-      // Trigger page refresh for other components
-      if (typeof window !== 'undefined' && window.CustomEvent) {
+// Trigger page refresh for other components
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('classChanged', { 
-          detail: { classId: newActiveClass.Id } 
+          detail: { 
+            classId: newActiveClass.Id,
+            className: newActiveClass.name
+          } 
         }));
       }
     } catch (error) {

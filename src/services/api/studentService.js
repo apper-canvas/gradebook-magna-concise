@@ -111,36 +111,70 @@ class StudentService {
 
     return breakdown;
   }
-
 async getAll(classId = null) {
     await delay(300);
     const targetClassId = classId || this.currentClassId;
-    return this.students.map(student => ({
-      ...student,
-      grades: [...student.grades.filter(grade => 
-        grade.classId === targetClassId || !grade.classId // Include grades without classId for backward compatibility
-      )]
-    }));
+    
+    // Filter students who are assigned to this class and their class-specific grades
+    return this.students
+      .filter(student => 
+        !student.classes || 
+        student.classes.length === 0 || 
+        student.classes.includes(targetClassId)
+      )
+      .map(student => {
+        const classGrades = student.grades.filter(grade => 
+          grade.classId === targetClassId || !grade.classId // Include grades without classId for backward compatibility
+        );
+        
+        // Recalculate grade average for this class only
+        const classGradeAverage = this.calculateWeightedGrade(classGrades);
+        
+        return {
+          ...student,
+          grades: [...classGrades],
+          gradeAverage: classGradeAverage,
+          recentAssignmentScore: classGrades.length > 0 ? 
+            (() => {
+              const mostRecent = classGrades.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+              return mostRecent ? (mostRecent.score / mostRecent.maxScore) * 100 : 0;
+            })() : 0
+        };
+      });
   }
 
-  async getCurrentClass() {
+async getCurrentClass() {
     return this.currentClassId;
   }
 
   async setCurrentClass(classId) {
-    this.currentClassId = classId;
+    this.currentClassId = parseInt(classId);
     return this.currentClassId;
   }
 
-  async getById(id) {
+  async getStudentsForCurrentClass() {
+    return this.getAll(this.currentClassId);
+  }
+
+async getById(id, classId = null) {
     await delay(200);
     const student = this.students.find(s => s.Id === parseInt(id));
     if (!student) {
       throw new Error("Student not found");
     }
+    
+    const targetClassId = classId || this.currentClassId;
+    const classGrades = student.grades.filter(grade => 
+      grade.classId === targetClassId || !grade.classId
+    );
+    
+    // Recalculate grade average for this class only
+    const classGradeAverage = this.calculateWeightedGrade(classGrades);
+    
     return {
       ...student,
-      grades: [...student.grades]
+      grades: [...classGrades],
+      gradeAverage: classGradeAverage
     };
   }
 async addGrade(studentId, gradeData) {
@@ -163,22 +197,14 @@ async addGrade(studentId, gradeData) {
       score: gradeData.score,
       maxScore: gradeData.maxScore,
       date: gradeData.date,
-      category: gradeData.category
+      category: gradeData.category,
+      classId: this.currentClassId // Assign to current active class
     };
 
     student.grades.push(newGrade);
 
-    // Recalculate weighted grade average
-    student.gradeAverage = this.calculateWeightedGrade(student.grades);
-
-    // Update recent assignment score
-    const mostRecentGrade = student.grades.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-    student.recentAssignmentScore = mostRecentGrade ? (mostRecentGrade.score / mostRecentGrade.maxScore) * 100 : 0;
-
-    return {
-      ...student,
-      grades: [...student.grades]
-    };
+    // Return student data filtered for current class
+    return this.getById(studentId, this.currentClassId);
   }
 
 async getAttendanceForDate(date) {

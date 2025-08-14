@@ -13,12 +13,13 @@ import Card, { CardContent, CardHeader, CardTitle } from "@/components/atoms/Car
 import Input from "@/components/atoms/Input";
 import StudentGradeTrendsChart from "@/components/molecules/StudentGradeTrendsChart";
 const StudentDetailPanel = ({ student, onClose, onGradeAdd }) => {
-const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [notes, setNotes] = useState(student.notes || "");
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date());
   const [attendanceHistory, setAttendanceHistory] = useState({});
   const [loadingAttendance, setLoadingAttendance] = useState(false);
+  const [currentStudent, setCurrentStudent] = useState(student);
   const [newGrade, setNewGrade] = useState({
     assignmentName: "",
     score: "",
@@ -27,8 +28,28 @@ const [showAddForm, setShowAddForm] = useState(false);
     category: "Test"
   });
 
-  useEffect(() => {
+useEffect(() => {
     loadAttendanceHistory();
+    setCurrentStudent(student);
+    setNotes(student.notes || "");
+
+    // Listen for class changes and refresh student data
+    const handleClassChange = async (event) => {
+      try {
+        const updatedStudent = await studentService.getById(student.Id);
+        setCurrentStudent(updatedStudent);
+        setNotes(updatedStudent.notes || "");
+        loadAttendanceHistory();
+      } catch (error) {
+        console.error("Failed to refresh student data:", error);
+      }
+    };
+
+    window.addEventListener('classChanged', handleClassChange);
+
+    return () => {
+      window.removeEventListener('classChanged', handleClassChange);
+    };
   }, [student.Id]);
 
   const loadAttendanceHistory = async () => {
@@ -315,9 +336,8 @@ const handleNotesUpdate = async () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {(() => {
-                    const categoryBreakdown = studentService.getCategoryBreakdown(student.Id);
+const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id);
                     const categoryWeights = studentService.getCategoryWeights();
-                    
                     return Object.entries(categoryWeights).map(([category, weight]) => {
                       const data = categoryBreakdown[category] || { average: 0, count: 0 };
                       return (
@@ -357,7 +377,7 @@ const handleNotesUpdate = async () => {
 
             {/* Grade Trends Chart */}
 <div className="mb-8">
-              <StudentGradeTrendsChart student={student} />
+              <StudentGradeTrendsChart student={currentStudent} />
             </div>
 
             {/* Personal Notes Section */}
@@ -525,9 +545,8 @@ const handleNotesUpdate = async () => {
                 ) : (
                   <div className="space-y-6">
                     {(() => {
-                      const categoryBreakdown = studentService.getCategoryBreakdown(student.Id);
+const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id);
                       const categoryWeights = studentService.getCategoryWeights();
-                      
                       return Object.entries(categoryBreakdown).map(([category, data]) => (
                         <motion.div
                           key={category}

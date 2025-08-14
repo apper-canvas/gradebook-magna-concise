@@ -16,8 +16,11 @@ import Badge from "@/components/atoms/Badge";
 import Label from "@/components/atoms/Label";
 import Card, { CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
 import Input from "@/components/atoms/Input";
+import studentsData from "@/services/mockData/students_updated.json";
+import classesData from "@/services/mockData/classes.json";
+
 const StudentsPage = () => {
-const [students, setStudents] = useState([]);
+  const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,6 +30,7 @@ const [students, setStudents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [attendance, setAttendance] = useState({});
   const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [activeClass, setActiveClass] = useState(null);
   
   // Bulk grade entry state
   const [selectedStudents, setSelectedStudents] = useState(new Set());
@@ -43,11 +47,14 @@ const [students, setStudents] = useState([]);
   const [availableClasses, setAvailableClasses] = useState([]);
   const [dragOverClass, setDragOverClass] = useState(null);
   const [assignmentLoading, setAssignmentLoading] = useState(false);
-  const loadStudents = async () => {
+  
+const loadStudents = async (classId = null) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await studentService.getAll();
+      const currentClass = classId || await classService.getActive();
+      setActiveClass(currentClass);
+      const data = await studentService.getAll(currentClass?.Id);
       setStudents(data);
       setFilteredStudents(data);
     } catch (err) {
@@ -55,9 +62,10 @@ const [students, setStudents] = useState([]);
     } finally {
       setLoading(false);
     }
-  };
-// Load attendance data when date changes
-useEffect(() => {
+};
+
+  // Load attendance data when date changes
+  useEffect(() => {
     if (viewMode === "attendance" && students.length > 0) {
       loadAttendanceForDate();
     }
@@ -146,8 +154,24 @@ useEffect(() => {
       default: return "Minus";
     }
   }
-  useEffect(() => {
+useEffect(() => {
     loadStudents();
+
+    // Listen for class changes from ClassSwitcher
+    const handleClassChange = (event) => {
+      const { classId } = event.detail;
+      loadStudents({ Id: classId });
+      // Reset selections when class changes
+      setSelectedStudents(new Set());
+      setSelectedStudent(null);
+      setStudentGrades({});
+    };
+
+    window.addEventListener('classChanged', handleClassChange);
+
+    return () => {
+      window.removeEventListener('classChanged', handleClassChange);
+    };
   }, []);
   useEffect(() => {
     if (searchTerm) {
