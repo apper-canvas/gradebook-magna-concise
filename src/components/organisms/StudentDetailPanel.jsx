@@ -173,9 +173,8 @@ const [newGrade, setNewGrade] = useState({
               </CardContent>
             </Card>
 
-            {/* Add Grade Section */}
+{/* Add Grade Section */}
             <Card className="mb-8">
-<Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Grade Management</CardTitle>
