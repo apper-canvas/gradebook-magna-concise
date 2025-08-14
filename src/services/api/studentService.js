@@ -516,6 +516,123 @@ student.recentAssignmentScore = 0;
     
     return [...this.students];
   }
+// Report-specific data methods
+  async getStudentSummaryForReport(studentId, startDate, endDate) {
+    await delay(300);
+    const student = await this.getById(studentId);
+    const attendanceHistory = await this.getStudentAttendanceHistory(studentId);
+    
+    // Filter grades within date range
+    const filteredGrades = student.grades.filter(grade => {
+      const gradeDate = new Date(grade.date);
+      return gradeDate >= new Date(startDate) && gradeDate <= new Date(endDate);
+    });
+    
+    return {
+      ...student,
+      gradesInPeriod: filteredGrades,
+      attendanceHistory: attendanceHistory,
+      periodGradeAverage: this.calculateWeightedGrade(filteredGrades)
+    };
+  }
+
+  async getAttendancePatternsForPeriod(studentId, startDate, endDate) {
+    await delay(200);
+    const attendanceHistory = await this.getStudentAttendanceHistory(studentId);
+    
+    // Filter attendance within date range
+    const filteredHistory = {};
+    Object.entries(attendanceHistory.history).forEach(([date, status]) => {
+      const attendanceDate = new Date(date);
+      if (attendanceDate >= new Date(startDate) && attendanceDate <= new Date(endDate)) {
+        filteredHistory[date] = status;
+      }
+    });
+
+    const totalDays = Object.keys(filteredHistory).length;
+    const statusCounts = {
+      present: 0,
+      late: 0,
+      absent: 0,
+      excused: 0
+    };
+
+    Object.values(filteredHistory).forEach(status => {
+      switch (status.toLowerCase()) {
+        case 'present':
+          statusCounts.present++;
+          break;
+        case 'late':
+          statusCounts.late++;
+          break;
+        case 'absent':
+          statusCounts.absent++;
+          break;
+        case 'excused':
+          statusCounts.excused++;
+          break;
+      }
+    });
+
+    const attendancePercentage = totalDays > 0 ? 
+      Math.round(((statusCounts.present + statusCounts.late + statusCounts.excused) / totalDays) * 100) : 100;
+
+    return {
+      totalDays,
+      attendancePercentage,
+      statusCounts,
+      filteredHistory,
+      period: {
+        start: startDate,
+        end: endDate
+      }
+    };
+  }
+
+  async getRecentAssignmentsForPeriod(studentId, startDate, endDate, limit = 10) {
+    await delay(200);
+    const student = await this.getById(studentId);
+    
+    const filteredGrades = student.grades
+      .filter(grade => {
+        const gradeDate = new Date(grade.date);
+        return gradeDate >= new Date(startDate) && gradeDate <= new Date(endDate);
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, limit);
+
+    return {
+      assignments: filteredGrades,
+      averageScore: filteredGrades.length > 0 ? 
+        Math.round(filteredGrades.reduce((sum, grade) => 
+          sum + (grade.score / grade.maxScore) * 100, 0) / filteredGrades.length) : 0,
+      totalAssignments: filteredGrades.length
+    };
+  }
+
+  async getBehaviorDataForPeriod(studentId, startDate, endDate) {
+    await delay(200);
+    const student = await this.getById(studentId);
+    
+    // In a real implementation, this would fetch behavior records
+    // For now, we'll use the student notes and generate some sample data
+    return {
+      notes: student.notes || '',
+      behaviorEvents: [
+        {
+          date: startDate,
+          type: 'positive',
+          description: 'Excellent participation in class discussion'
+        },
+        {
+          date: endDate,
+          type: 'neutral',
+          description: 'Completed all assignments on time'
+        }
+      ],
+      overallBehavior: 'positive'
+    };
+  }
 }
 
 export const studentService = new StudentService();
