@@ -279,9 +279,10 @@ const StudentsPage = () => {
           <h1 className="text-3xl font-bold gradient-text">Student Roster</h1>
           <p className="text-slate-600 font-medium mt-2">
             Manage your students and track their academic progress
-          </p>
+</p>
         </div>
-{/* View Toggle and Date Picker */}
+        
+        {/* View Toggle and Date Picker */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex gap-2">
             <Button
@@ -364,9 +365,10 @@ const StudentsPage = () => {
               <p className="text-sm font-medium text-warning-600">Total Grades</p>
               <p className="text-2xl font-bold text-warning-900">{stats.totalAssignments}</p>
             </div>
-          </div>
+</div>
         </Card>
       </div>
+      )}
 
       {/* Search and Filters */}
       <Card>
@@ -379,9 +381,9 @@ const StudentsPage = () => {
               className="w-full sm:w-80"
             />
           </div>
-        </CardHeader>
+</CardHeader>
         <CardContent>
-{viewMode === "roster" ? (
+          {viewMode === "roster" ? (
             <StudentTable
               students={filteredStudents}
               onStudentSelect={handleStudentSelect}
