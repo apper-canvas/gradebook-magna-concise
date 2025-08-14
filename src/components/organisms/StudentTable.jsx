@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import StudentTableRow from "@/components/molecules/StudentTableRow";
 import ApperIcon from "@/components/ApperIcon";
 
-const StudentTable = ({ students, onStudentSelect, selectedStudent }) => {
+const StudentTable = ({ students, onStudentSelect, selectedStudent, showCheckboxes = false, selectedStudents = new Set(), onStudentToggle, onSelectAll }) => {
   const [sortField, setSortField] = useState("lastName");
   const [sortDirection, setSortDirection] = useState("asc");
 
@@ -65,22 +65,35 @@ const StudentTable = ({ students, onStudentSelect, selectedStudent }) => {
       className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-slate-200"
     >
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
+<table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
             <tr>
+              {showCheckboxes && (
+                <th className="px-6 py-4 text-left">
+                  <input
+                    type="checkbox"
+                    checked={selectedStudents.size === students.length && students.length > 0}
+                    onChange={onSelectAll}
+                    className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                  />
+                </th>
+              )}
               <SortableHeader field="name">Student</SortableHeader>
               <SortableHeader field="gradeAverage">Grade Average</SortableHeader>
               <SortableHeader field="recentAssignmentScore">Recent Assignment</SortableHeader>
               <SortableHeader field="attendancePercentage">Attendance</SortableHeader>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
+<tbody className="bg-white divide-y divide-slate-200">
             {sortedStudents.map((student) => (
               <StudentTableRow
                 key={student.Id}
                 student={student}
                 onClick={onStudentSelect}
                 isSelected={selectedStudent?.Id === student.Id}
+                showCheckbox={showCheckboxes}
+                isChecked={selectedStudents.has(student.Id)}
+                onToggle={() => onStudentToggle && onStudentToggle(student.Id)}
               />
             ))}
           </tbody>

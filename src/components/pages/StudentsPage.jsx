@@ -12,11 +12,12 @@ import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import Button from "@/components/atoms/Button";
 import Badge from "@/components/atoms/Badge";
+import Label from "@/components/atoms/Label";
 import Card, { CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
 import Input from "@/components/atoms/Input";
 
 const StudentsPage = () => {
-  const [students, setStudents] = useState([]);
+const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,17 @@ const StudentsPage = () => {
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [attendance, setAttendance] = useState({});
   const [attendanceLoading, setAttendanceLoading] = useState(false);
+  
+  // Bulk grade entry state
+  const [selectedStudents, setSelectedStudents] = useState(new Set());
+  const [bulkGradeData, setBulkGradeData] = useState({
+    assignmentName: "",
+    maxScore: "",
+    date: format(new Date(), "yyyy-MM-dd"),
+    category: "Assignment"
+  });
+  const [studentGrades, setStudentGrades] = useState({});
+  const [bulkLoading, setBulkLoading] = useState(false);
   const loadStudents = async () => {
     try {
       setLoading(true);
@@ -146,6 +158,104 @@ const StudentsPage = () => {
     }
 };
 
+  const handleStudentToggle = (studentId) => {
+    const newSelected = new Set(selectedStudents);
+    if (newSelected.has(studentId)) {
+      newSelected.delete(studentId);
+      const newGrades = { ...studentGrades };
+      delete newGrades[studentId];
+      setStudentGrades(newGrades);
+    } else {
+      newSelected.add(studentId);
+    }
+    setSelectedStudents(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedStudents.size === filteredStudents.length) {
+      setSelectedStudents(new Set());
+      setStudentGrades({});
+    } else {
+      setSelectedStudents(new Set(filteredStudents.map(s => s.Id)));
+    }
+  };
+
+  const handleBulkGradeChange = (field, value) => {
+    setBulkGradeData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleStudentGradeChange = (studentId, score) => {
+    setStudentGrades(prev => ({
+      ...prev,
+      [studentId]: score
+    }));
+  };
+
+  const handleBulkGradeSubmit = async () => {
+    if (!bulkGradeData.assignmentName.trim()) {
+      toast.error("Assignment name is required");
+      return;
+    }
+
+    if (!bulkGradeData.maxScore || bulkGradeData.maxScore <= 0) {
+      toast.error("Max score must be greater than 0");
+      return;
+    }
+
+    if (selectedStudents.size === 0) {
+      toast.error("Please select at least one student");
+      return;
+    }
+
+    // Validate that all selected students have scores
+    const missingScores = Array.from(selectedStudents).filter(
+      studentId => !studentGrades[studentId] || studentGrades[studentId] === ""
+    );
+
+    if (missingScores.length > 0) {
+      const studentNames = missingScores.map(id => {
+        const student = students.find(s => s.Id === id);
+        return `${student?.firstName} ${student?.lastName}`;
+      }).join(", ");
+      toast.error(`Please enter scores for: ${studentNames}`);
+      return;
+    }
+
+    setBulkLoading(true);
+    
+    try {
+      const gradesArray = Array.from(selectedStudents).map(studentId => ({
+        studentId,
+        ...bulkGradeData,
+        score: parseFloat(studentGrades[studentId]),
+        maxScore: parseFloat(bulkGradeData.maxScore)
+      }));
+
+      await studentService.addBulkGrades(gradesArray);
+      
+      // Refresh students data
+      await loadStudents();
+      
+      // Reset form
+      setSelectedStudents(new Set());
+      setStudentGrades({});
+      setBulkGradeData({
+        assignmentName: "",
+        maxScore: "",
+        date: format(new Date(), "yyyy-MM-dd"),
+        category: "Assignment"
+      });
+      
+      toast.success(`Grades added for ${selectedStudents.size} students`);
+    } catch (error) {
+      toast.error("Failed to add grades: " + error.message);
+    } finally {
+      setBulkLoading(false);
+    }
+  };
   function renderAttendanceView() {
     if (attendanceLoading) {
       return (
@@ -285,7 +395,7 @@ const getClassStats = () => {
         {/* View Toggle and Date Picker */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex gap-2">
-            <Button
+<Button
               variant={viewMode === "roster" ? "default" : "outline"}
               onClick={() => setViewMode("roster")}
               className="gap-2"
@@ -300,6 +410,14 @@ const getClassStats = () => {
             >
               <ApperIcon name="Calendar" size={16} />
               Attendance
+            </Button>
+            <Button
+              variant={viewMode === "bulk-grades" ? "default" : "outline"}
+              onClick={() => setViewMode("bulk-grades")}
+              className="gap-2"
+            >
+              <ApperIcon name="Edit3" size={16} />
+              Bulk Grades
             </Button>
           </div>
           
@@ -383,14 +501,199 @@ const getClassStats = () => {
           </div>
 </CardHeader>
         <CardContent>
-          {viewMode === "roster" ? (
+{viewMode === "roster" ? (
             <StudentTable
               students={filteredStudents}
               onStudentSelect={handleStudentSelect}
               selectedStudent={selectedStudent}
             />
-          ) : (
+          ) : viewMode === "attendance" ? (
             renderAttendanceView()
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              {/* Bulk Grade Entry Form */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ApperIcon name="Edit3" size={20} />
+                    Assignment Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <Label htmlFor="assignmentName">Assignment Name</Label>
+                      <Input
+                        id="assignmentName"
+                        value={bulkGradeData.assignmentName}
+                        onChange={(e) => handleBulkGradeChange("assignmentName", e.target.value)}
+                        placeholder="Enter assignment name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="maxScore">Max Score</Label>
+                      <Input
+                        id="maxScore"
+                        type="number"
+                        value={bulkGradeData.maxScore}
+                        onChange={(e) => handleBulkGradeChange("maxScore", e.target.value)}
+                        placeholder="100"
+                        min="0"
+                        step="0.1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="gradeDate">Date</Label>
+                      <Input
+                        id="gradeDate"
+                        type="date"
+                        value={bulkGradeData.date}
+                        onChange={(e) => handleBulkGradeChange("date", e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="category">Category</Label>
+                      <select
+                        id="category"
+                        value={bulkGradeData.category}
+                        onChange={(e) => handleBulkGradeChange("category", e.target.value)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      >
+                        <option value="Assignment">Assignment</option>
+                        <option value="Test">Test</option>
+                        <option value="Quiz">Quiz</option>
+                        <option value="Homework">Homework</option>
+                        <option value="Project">Project</option>
+                        <option value="Participation">Participation</option>
+                      </select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Student Grade Entry Table */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <ApperIcon name="Users" size={20} />
+                      Student Grades
+                      {selectedStudents.size > 0 && (
+                        <Badge variant="secondary">
+                          {selectedStudents.size} selected
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <Button
+                      onClick={handleBulkGradeSubmit}
+                      disabled={selectedStudents.size === 0 || bulkLoading}
+                      className="gap-2"
+                    >
+                      {bulkLoading ? (
+                        <ApperIcon name="Loader2" size={16} className="animate-spin" />
+                      ) : (
+                        <ApperIcon name="Save" size={16} />
+                      )}
+                      Save Grades
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-slate-200">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-slate-200">
+                        <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
+                          <tr>
+                            <th className="px-6 py-4 text-left">
+                              <input
+                                type="checkbox"
+                                checked={selectedStudents.size === filteredStudents.length && filteredStudents.length > 0}
+                                onChange={handleSelectAll}
+                                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                              />
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                              Student
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                              Current Average
+                            </th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
+                              Score
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-slate-200">
+                          {filteredStudents.map((student) => (
+                            <tr
+                              key={student.Id}
+                              className={`hover:bg-slate-50 transition-colors ${
+                                selectedStudents.has(student.Id) ? "bg-primary-50" : ""
+                              }`}
+                            >
+                              <td className="px-6 py-4">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedStudents.has(student.Id)}
+                                  onChange={() => handleStudentToggle(student.Id)}
+                                  className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                                />
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex items-center">
+                                  <div className="flex-shrink-0 h-10 w-10">
+                                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                                      {student.firstName[0]}{student.lastName[0]}
+                                    </div>
+                                  </div>
+                                  <div className="ml-4">
+                                    <div className="text-sm font-medium text-slate-900">
+                                      {student.firstName} {student.lastName}
+                                    </div>
+                                    <div className="text-sm text-slate-500">
+                                      {student.email}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <Badge variant={
+                                  student.gradeAverage >= 90 ? "success" :
+                                  student.gradeAverage >= 80 ? "secondary" :
+                                  student.gradeAverage >= 70 ? "warning" : "destructive"
+                                }>
+                                  {student.gradeAverage.toFixed(1)}%
+                                </Badge>
+                              </td>
+                              <td className="px-6 py-4">
+                                {selectedStudents.has(student.Id) ? (
+                                  <Input
+                                    type="number"
+                                    value={studentGrades[student.Id] || ""}
+                                    onChange={(e) => handleStudentGradeChange(student.Id, e.target.value)}
+                                    placeholder="Enter score"
+                                    min="0"
+                                    max={bulkGradeData.maxScore || 100}
+                                    step="0.1"
+                                    className="w-24"
+                                  />
+                                ) : (
+                                  <span className="text-slate-400 text-sm">Select to enter score</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
         </CardContent>
       </Card>

@@ -241,6 +241,64 @@ async getAttendanceForDate(date) {
     }
 
     return { ...student };
+return { ...student };
+  }
+
+  async addBulkGrades(gradesArray) {
+    await delay(500);
+    
+    const results = [];
+    const errors = [];
+    
+    for (const gradeData of gradesArray) {
+      try {
+        const studentIndex = this.students.findIndex(s => s.Id === parseInt(gradeData.studentId));
+        if (studentIndex === -1) {
+          errors.push(`Student with ID ${gradeData.studentId} not found`);
+          continue;
+        }
+
+        const student = this.students[studentIndex];
+        const highestGradeId = Math.max(
+          0,
+          ...this.students.flatMap(s => s.grades.map(g => g.Id))
+        );
+
+        const newGrade = {
+          Id: highestGradeId + 1 + results.length, // Ensure unique IDs
+          studentId: gradeData.studentId.toString(),
+          assignmentName: gradeData.assignmentName,
+          score: gradeData.score,
+          maxScore: gradeData.maxScore,
+          date: gradeData.date,
+          category: gradeData.category
+        };
+
+        student.grades.push(newGrade);
+
+        // Recalculate weighted grade average
+        student.gradeAverage = this.calculateWeightedGrade(student.grades);
+
+        // Update recent assignment score
+        const mostRecentGrade = student.grades.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+        student.recentAssignmentScore = mostRecentGrade ? (mostRecentGrade.score / mostRecentGrade.maxScore) * 100 : 0;
+
+        results.push({
+          studentId: gradeData.studentId,
+          grade: newGrade,
+          student: { ...student }
+        });
+
+      } catch (error) {
+        errors.push(`Error adding grade for student ${gradeData.studentId}: ${error.message}`);
+      }
+    }
+
+    if (errors.length > 0) {
+      throw new Error(`Bulk grade operation completed with errors: ${errors.join('; ')}`);
+    }
+
+    return results;
   }
 }
 export const studentService = new StudentService();
