@@ -192,8 +192,100 @@ const [students, setStudents] = useState([]);
       ...prev,
       [studentId]: score
     }));
+};
+
+  // Quick grade entry functions
+  const handleQuickGrade = (studentId, gradeType) => {
+    if (!bulkGradeData.maxScore) {
+      toast.error("Please set max score first");
+      return;
+    }
+
+    const maxScore = parseFloat(bulkGradeData.maxScore);
+    let score = 0;
+
+    switch (gradeType) {
+      case 'A':
+        score = maxScore * 0.9; // 90%
+        break;
+      case 'B':
+        score = maxScore * 0.8; // 80%
+        break;
+      case 'C':
+        score = maxScore * 0.7; // 70%
+        break;
+      case 'D':
+        score = maxScore * 0.6; // 60%
+        break;
+      case 'F':
+        score = 0; // 0%
+        break;
+      case 'Full':
+        score = maxScore; // 100%
+        break;
+      case 'Incomplete':
+        score = 0; // 0%
+        break;
+      default:
+        return;
+    }
+
+    setStudentGrades(prev => ({
+      ...prev,
+      [studentId]: score.toString()
+    }));
+
+    toast.success(`${gradeType} grade (${score}/${maxScore}) applied`);
   };
 
+  const handleBulkQuickGrade = (gradeType) => {
+    if (!bulkGradeData.maxScore) {
+      toast.error("Please set max score first");
+      return;
+    }
+
+    if (selectedStudents.size === 0) {
+      toast.error("Please select students first");
+      return;
+    }
+
+    const maxScore = parseFloat(bulkGradeData.maxScore);
+    let score = 0;
+
+    switch (gradeType) {
+      case 'A':
+        score = maxScore * 0.9;
+        break;
+      case 'B':
+        score = maxScore * 0.8;
+        break;
+      case 'C':
+        score = maxScore * 0.7;
+        break;
+      case 'D':
+        score = maxScore * 0.6;
+        break;
+      case 'F':
+        score = 0;
+        break;
+      case 'Full':
+        score = maxScore;
+        break;
+      case 'Incomplete':
+        score = 0;
+        break;
+      default:
+        return;
+    }
+
+    const newGrades = { ...studentGrades };
+    selectedStudents.forEach(studentId => {
+      newGrades[studentId] = score.toString();
+    });
+
+    setStudentGrades(newGrades);
+    toast.success(`${gradeType} grade applied to ${selectedStudents.size} students`);
+  };
   const handleBulkGradeSubmit = async () => {
     if (!bulkGradeData.assignmentName.trim()) {
       toast.error("Assignment name is required");
@@ -572,6 +664,50 @@ const getClassStats = () => {
                       </select>
                     </div>
                   </div>
+{bulkGradeData.maxScore && selectedStudents.size > 0 && (
+                    <div className="mt-4 p-4 bg-slate-50 rounded-lg border">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div>
+                          <Label className="text-sm font-medium text-slate-700">Quick Grade Entry</Label>
+                          <p className="text-xs text-slate-500">Apply to all selected students</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {['A', 'B', 'C', 'D', 'F'].map(grade => (
+                            <Button
+                              key={grade}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleBulkQuickGrade(grade)}
+                              className="gap-1"
+                            >
+                              {grade}
+                              <span className="text-xs text-slate-500">
+                                ({grade === 'A' ? '90%' : grade === 'B' ? '80%' : grade === 'C' ? '70%' : grade === 'D' ? '60%' : '0%'})
+                              </span>
+                            </Button>
+                          ))}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleBulkQuickGrade('Full')}
+                            className="gap-1 text-success-600 hover:text-success-700 border-success-200 hover:border-success-300"
+                          >
+                            Full Credit
+                            <span className="text-xs text-slate-500">(100%)</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleBulkQuickGrade('Incomplete')}
+                            className="gap-1 text-warning-600 hover:text-warning-700 border-warning-200 hover:border-warning-300"
+                          >
+                            Incomplete
+                            <span className="text-xs text-slate-500">(0%)</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -669,18 +805,51 @@ const getClassStats = () => {
                                   {student.gradeAverage.toFixed(1)}%
                                 </Badge>
                               </td>
-                              <td className="px-6 py-4">
+<td className="px-6 py-4">
                                 {selectedStudents.has(student.Id) ? (
-                                  <Input
-                                    type="number"
-                                    value={studentGrades[student.Id] || ""}
-                                    onChange={(e) => handleStudentGradeChange(student.Id, e.target.value)}
-                                    placeholder="Enter score"
-                                    min="0"
-                                    max={bulkGradeData.maxScore || 100}
-                                    step="0.1"
-                                    className="w-24"
-                                  />
+                                  <div className="space-y-2">
+                                    <Input
+                                      type="number"
+                                      value={studentGrades[student.Id] || ""}
+                                      onChange={(e) => handleStudentGradeChange(student.Id, e.target.value)}
+                                      placeholder="Enter score"
+                                      min="0"
+                                      max={bulkGradeData.maxScore || 100}
+                                      step="0.1"
+                                      className="w-24"
+                                    />
+                                    {bulkGradeData.maxScore && (
+                                      <div className="flex flex-wrap gap-1">
+                                        {['A', 'B', 'C', 'D', 'F'].map(grade => (
+                                          <Button
+                                            key={grade}
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleQuickGrade(student.Id, grade)}
+                                            className="h-6 px-2 text-xs font-medium"
+                                          >
+                                            {grade}
+                                          </Button>
+                                        ))}
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => handleQuickGrade(student.Id, 'Full')}
+                                          className="h-6 px-2 text-xs font-medium text-success-600 hover:text-success-700"
+                                        >
+                                          Full
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => handleQuickGrade(student.Id, 'Incomplete')}
+                                          className="h-6 px-2 text-xs font-medium text-warning-600 hover:text-warning-700"
+                                        >
+                                          Inc
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
                                 ) : (
                                   <span className="text-slate-400 text-sm">Select to enter score</span>
                                 )}
