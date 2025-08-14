@@ -11,6 +11,7 @@ import Badge from "@/components/atoms/Badge";
 import Label from "@/components/atoms/Label";
 import Card, { CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
 import Input from "@/components/atoms/Input";
+import StudentGradeTrendsChart from "@/components/molecules/StudentGradeTrendsChart";
 const StudentDetailPanel = ({ student, onClose, onGradeAdd }) => {
   const [showAddForm, setShowAddForm] = useState(false);
 const [newGrade, setNewGrade] = useState({
@@ -171,7 +172,12 @@ const [newGrade, setNewGrade] = useState({
                   })()}
                 </div>
               </CardContent>
-            </Card>
+</Card>
+
+            {/* Grade Trends Chart */}
+            <div className="mb-8">
+              <StudentGradeTrendsChart student={student} />
+            </div>
 
 {/* Add Grade Section */}
             <Card className="mb-8">

@@ -313,8 +313,35 @@ return { ...student };
       throw new Error(`Bulk grade operation completed with errors: ${errors.join('; ')}`);
     }
 
-    return results;
+return results;
+  }
+
+  // Get grade trends data for charting
+  getGradeTrends(studentId) {
+    const student = this.students.find(s => s.Id === parseInt(studentId));
+    if (!student || !student.grades) return [];
+
+    // Sort grades by date and calculate trend data
+    const sortedGrades = [...student.grades].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    let runningTotal = 0;
+    return sortedGrades.map((grade, index) => {
+      const percentage = (grade.score / grade.maxScore) * 100;
+      runningTotal += percentage;
+      const runningAverage = runningTotal / (index + 1);
+      
+      return {
+        date: grade.date,
+        assignmentName: grade.assignmentName,
+        category: grade.category,
+        score: grade.score,
+        maxScore: grade.maxScore,
+        percentage: Math.round(percentage * 10) / 10,
+        runningAverage: Math.round(runningAverage * 10) / 10
+      };
+    });
   }
 }
 
+export const studentService = new StudentService();
 export const studentService = new StudentService();
