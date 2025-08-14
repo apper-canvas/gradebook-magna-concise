@@ -315,10 +315,18 @@ const handleNotesUpdate = async () => {
                 <div className="text-sm text-success-700 font-semibold">Weighted Average</div>
               </Card>
               <Card className="p-6 text-center bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200">
-                <div className="text-3xl font-bold gradient-text mb-2">
+<div className="text-3xl font-bold gradient-text mb-2">
                   {student.attendancePercentage.toFixed(1)}%
                 </div>
-                <div className="text-sm text-primary-700 font-semibold">Attendance Rate</div>
+                <div className="text-sm text-primary-700 font-semibold">
+                  Attendance Rate
+                  <div className="text-xs text-primary-600 mt-1">
+                    Running: {Object.keys(attendanceHistory).length > 0 ? 
+                      `${Object.keys(attendanceHistory).length} days tracked` : 
+                      'Based on default rate'
+                    }
+                  </div>
+                </div>
               </Card>
               <Card className="p-6 text-center bg-gradient-to-br from-accent-50 to-accent-100 border-accent-200">
                 <div className="text-3xl font-bold gradient-text mb-2">
@@ -421,11 +429,14 @@ const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id)
 </Card>
 
             {/* Attendance Calendar */}
-            <Card className="mb-8">
+<Card className="mb-8">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <ApperIcon name="Calendar" className="h-5 w-5 text-primary-600" />
                   Attendance Calendar
+                  <Badge variant="secondary" className="ml-2">
+                    {student.attendancePercentage.toFixed(1)}% Running Average
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -435,7 +446,20 @@ const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id)
                     <span className="ml-3 text-slate-600">Loading attendance history...</span>
                   </div>
                 ) : (
-                  renderCalendar()
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg border border-primary-200">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium text-primary-700">
+                          Live Tracking: {Object.keys(attendanceHistory).length} days recorded
+                        </span>
+                      </div>
+                      <div className="text-sm font-semibold text-primary-600">
+                        Current Rate: {student.attendancePercentage.toFixed(1)}%
+                      </div>
+                    </div>
+                    {renderCalendar()}
+                  </div>
                 )}
               </CardContent>
             </Card>

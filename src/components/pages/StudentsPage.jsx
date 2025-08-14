@@ -705,11 +705,19 @@ const handleBulkGradeSubmit = async () => {
                                         {currentStatus}
                                     </Button>
                                 </td>
-                                <td className="p-4 text-center">
-                                    <Badge
-                                        variant={student.attendancePercentage >= 90 ? "success" : student.attendancePercentage >= 75 ? "warning" : "destructive"}>
-                                        {student.attendancePercentage.toFixed(1)}%
-                                                                </Badge>
+<td className="p-4 text-center">
+                                    <div className="flex flex-col items-center gap-1">
+                                        <Badge
+                                            variant={student.attendancePercentage >= 90 ? "success" : student.attendancePercentage >= 75 ? "warning" : "destructive"}>
+                                            {student.attendancePercentage.toFixed(1)}%
+                                        </Badge>
+                                        <span className="text-xs text-slate-500">
+                                            {student.attendancePercentage >= 95 ? "Excellent" :
+                                             student.attendancePercentage >= 90 ? "Good" :
+                                             student.attendancePercentage >= 80 ? "Fair" :
+                                             student.attendancePercentage >= 70 ? "Poor" : "Critical"}
+                                        </span>
+                                    </div>
                                 </td>
                             </motion.tr>
                         );

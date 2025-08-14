@@ -232,36 +232,90 @@ async getAttendanceForDate(date) {
     return { ...this.students[studentIndex] };
   }
 
-  calculateAttendancePercentage(studentId) {
+calculateAttendancePercentage(studentId) {
     let totalDays = 0;
     let presentDays = 0;
+    let lateCount = 0;
+    let absentCount = 0;
+    let excusedCount = 0;
 
-    // Count attendance across all dates
+    // Count attendance across all dates with detailed tracking
     for (const [date, dayAttendance] of this.attendance.entries()) {
       const status = dayAttendance.get(studentId);
       if (status) {
         totalDays++;
-        if (status === "Present" || status === "Late") {
-          presentDays++;
+        switch (status) {
+          case "Present":
+            presentDays++;
+            break;
+          case "Late":
+            presentDays++; // Late counts as present but track separately
+            lateCount++;
+            break;
+          case "Absent":
+            absentCount++;
+            break;
+          case "Excused":
+            excusedCount++;
+            presentDays++; // Excused counts as present
+            break;
         }
       }
     }
 
-    return totalDays > 0 ? (presentDays / totalDays) * 100 : 95; // Default to 95% if no records
+    // Calculate running percentage with weighted consideration for late arrivals
+    const basePercentage = totalDays > 0 ? (presentDays / totalDays) * 100 : 95;
+    
+    // Apply slight penalty for excessive late arrivals (more than 20% of total days)
+    const latePenalty = lateCount > (totalDays * 0.2) ? Math.min(lateCount * 0.5, 5) : 0;
+    
+    const finalPercentage = Math.max(0, Math.min(100, basePercentage - latePenalty));
+    
+    return Math.round(finalPercentage * 10) / 10; // Round to 1 decimal place
   }
 async getStudentAttendanceHistory(studentId) {
     await delay(200);
     const history = {};
+    const stats = {
+      totalDays: 0,
+      presentDays: 0,
+      lateDays: 0,
+      absentDays: 0,
+      excusedDays: 0
+    };
     
-    // Get all attendance records for this student across all dates
+    // Get all attendance records for this student across all dates with running totals
     for (const [date, dayAttendance] of this.attendance.entries()) {
       const status = dayAttendance.get(parseInt(studentId));
       if (status) {
         history[date] = status;
+        stats.totalDays++;
+        
+        // Update running statistics
+        switch (status) {
+          case "Present":
+            stats.presentDays++;
+            break;
+          case "Late":
+            stats.presentDays++;
+            stats.lateDays++;
+            break;
+          case "Absent":
+            stats.absentDays++;
+            break;
+          case "Excused":
+            stats.presentDays++;
+            stats.excusedDays++;
+            break;
+        }
       }
     }
     
-    return history;
+    // Add running percentage calculation
+    stats.runningPercentage = stats.totalDays > 0 ? 
+      Math.round(((stats.presentDays / stats.totalDays) * 100) * 10) / 10 : 95;
+    
+    return { history, stats };
   }
   async updateAttendance(studentId, attendancePercentage) {
     await delay(200);
