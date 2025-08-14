@@ -1,14 +1,19 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { format } from "date-fns";
+import { studentService } from "@/services/api/studentService";
+import ApperIcon from "@/components/ApperIcon";
 import StudentTable from "@/components/organisms/StudentTable";
 import StudentDetailPanel from "@/components/organisms/StudentDetailPanel";
 import SearchBar from "@/components/molecules/SearchBar";
-import Card, { CardHeader, CardTitle, CardContent } from "@/components/atoms/Card";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import ApperIcon from "@/components/ApperIcon";
-import { studentService } from "@/services/api/studentService";
+import Button from "@/components/atoms/Button";
+import Badge from "@/components/atoms/Badge";
+import Card, { CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
+import Input from "@/components/atoms/Input";
 
 const StudentsPage = () => {
   const [students, setStudents] = useState([]);
@@ -17,7 +22,10 @@ const StudentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [viewMode, setViewMode] = useState("roster");
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [attendance, setAttendance] = useState({});
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
   const loadStudents = async () => {
     try {
       setLoading(true);
@@ -31,11 +39,83 @@ const StudentsPage = () => {
       setLoading(false);
     }
   };
+// Load attendance data when date changes
+  useEffect(() => {
+    if (viewMode === "attendance" && students.length > 0) {
+      loadAttendanceForDate();
+    }
+  }, [selectedDate, viewMode, students]);
 
+  async function loadAttendanceForDate() {
+    setAttendanceLoading(true);
+    try {
+      const attendanceData = await studentService.getAttendanceForDate(selectedDate);
+      setAttendance(attendanceData);
+    } catch (err) {
+      console.error("Failed to load attendance:", err);
+      setAttendance({});
+    } finally {
+      setAttendanceLoading(false);
+    }
+  }
+
+  async function handleAttendanceChange(studentId, newStatus) {
+    try {
+      await studentService.updateStudentAttendance(studentId, selectedDate, newStatus);
+      
+      // Update local attendance state
+      setAttendance(prev => ({
+        ...prev,
+        [studentId]: newStatus
+      }));
+
+      // Update student attendance percentages
+      const updatedStudents = await studentService.getAll();
+      setStudents(updatedStudents);
+      
+      // Update filtered students if search is active
+      const filtered = updatedStudents.filter(student =>
+        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.studentId.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredStudents(filtered);
+
+      toast.success(`Attendance updated for ${updatedStudents.find(s => s.Id === studentId)?.name}`);
+    } catch (err) {
+      console.error("Failed to update attendance:", err);
+      toast.error("Failed to update attendance");
+    }
+  }
+
+  function getNextStatus(currentStatus) {
+    const statuses = ["Present", "Absent", "Late", "Excused"];
+    const currentIndex = statuses.indexOf(currentStatus || "Absent");
+    return statuses[(currentIndex + 1) % statuses.length];
+  }
+
+  function getStatusVariant(status) {
+    switch (status) {
+      case "Present": return "success";
+      case "Absent": return "destructive";
+      case "Late": return "warning";
+      case "Excused": return "secondary";
+      default: return "outline";
+    }
+  }
+
+  function getStatusIcon(status) {
+    switch (status) {
+      case "Present": return "CheckCircle";
+      case "Absent": return "XCircle";
+      case "Late": return "Clock";
+      case "Excused": return "Shield";
+      default: return "Minus";
+    }
+  }
   useEffect(() => {
     loadStudents();
   }, []);
-
   useEffect(() => {
     if (searchTerm) {
       const filtered = students.filter(student => 
@@ -64,7 +144,96 @@ const StudentsPage = () => {
     } catch (err) {
       console.error("Failed to add grade:", err);
     }
-  };
+};
+
+  function renderAttendanceView() {
+    if (attendanceLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <Loading />
+        </div>
+      );
+    }
+
+    if (filteredStudents.length === 0) {
+      return (
+        <Card className="p-12">
+          <Empty 
+            message="No students found"
+            description="Try adjusting your search terms"
+          />
+        </Card>
+      );
+    }
+
+    return (
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="text-left p-4 font-semibold text-muted-foreground">Student</th>
+                  <th className="text-left p-4 font-semibold text-muted-foreground">ID</th>
+                  <th className="text-center p-4 font-semibold text-muted-foreground">Status</th>
+                  <th className="text-center p-4 font-semibold text-muted-foreground">Attendance %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map((student) => {
+                  const currentStatus = attendance[student.Id] || "Absent";
+                  return (
+                    <motion.tr
+                      key={student.Id}
+                      className="border-b hover:bg-muted/30 transition-colors"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white font-semibold">
+                            {student.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{student.name}</p>
+                            <p className="text-sm text-muted-foreground">{student.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm font-mono text-muted-foreground">
+                          {student.studentId}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <Button
+                          variant={getStatusVariant(currentStatus)}
+                          size="sm"
+                          onClick={() => handleAttendanceChange(student.Id, getNextStatus(currentStatus))}
+                          className="gap-2"
+                        >
+                          <ApperIcon name={getStatusIcon(currentStatus)} size={16} />
+                          {currentStatus}
+                        </Button>
+                      </td>
+                      <td className="p-4 text-center">
+                        <Badge 
+                          variant={student.attendancePercentage >= 90 ? "success" : student.attendancePercentage >= 75 ? "warning" : "destructive"}
+                        >
+                          {student.attendancePercentage.toFixed(1)}%
+                        </Badge>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getClassStats = () => {
     if (students.length === 0) return { avgGrade: 0, avgAttendance: 0, totalAssignments: 0 };
@@ -112,11 +281,45 @@ const StudentsPage = () => {
             Manage your students and track their academic progress
           </p>
         </div>
+{/* View Toggle and Date Picker */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === "roster" ? "default" : "outline"}
+              onClick={() => setViewMode("roster")}
+              className="gap-2"
+            >
+              <ApperIcon name="Users" size={16} />
+              Roster
+            </Button>
+            <Button
+              variant={viewMode === "attendance" ? "default" : "outline"}
+              onClick={() => setViewMode("attendance")}
+              className="gap-2"
+            >
+              <ApperIcon name="Calendar" size={16} />
+              Attendance
+            </Button>
+          </div>
+          
+          {viewMode === "attendance" && (
+            <div className="flex items-center gap-2">
+              <ApperIcon name="Calendar" size={16} className="text-muted-foreground" />
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-auto"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Class Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200">
+      {viewMode === "roster" && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="p-6 bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200">
           <div className="flex items-center space-x-3">
             <div className="p-3 bg-primary-500 rounded-lg">
               <ApperIcon name="Users" className="h-6 w-6 text-white" />
@@ -178,11 +381,15 @@ const StudentsPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <StudentTable
-            students={filteredStudents}
-            onStudentSelect={handleStudentSelect}
-            selectedStudent={selectedStudent}
-          />
+{viewMode === "roster" ? (
+            <StudentTable
+              students={filteredStudents}
+              onStudentSelect={handleStudentSelect}
+              selectedStudent={selectedStudent}
+            />
+          ) : (
+            renderAttendanceView()
+          )}
         </CardContent>
       </Card>
 
