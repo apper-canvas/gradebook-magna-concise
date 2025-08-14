@@ -8,7 +8,8 @@
     "attendancePercentage": 95.5,
     "gradeAverage": 92.3,
     "recentAssignmentScore": 95,
-    "notes": "",
+"notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
       {
         "Id": 1,
@@ -85,15 +86,25 @@
 },
   {
     "Id": 2,
-    "firstName": "Michael",
-    "lastName": "Chen",
-    "email": "michael.chen@school.edu",
+    "firstName": "Sarah",
+    "lastName": "Johnson",
+    "email": "sarah.johnson@student.school.edu",
     "gradeLevel": 10,
-    "attendancePercentage": 88.2,
-    "gradeAverage": 87.6,
-    "recentAssignmentScore": 82,
+    "gradeAverage": 88.5,
+    "attendancePercentage": 97.2,
     "notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
+    "Id",": 2",
+    "firstName",":", "Michael",
+    "lastName",":", "Chen",
+    "email",":", "michael.chen@school.edu",
+    "gradeLevel",": 10",
+    "attendancePercentage",": 88.2",
+    "gradeAverage",": 87.6",
+    "recentAssignmentScore",": 82",
+    "notes",":", "",
+    "parentContacts",":", [
       {
         "Id": 3,
         "firstName": "David",
@@ -119,7 +130,7 @@
         "emergencyContact": true
       }
     ],
-    "grades": [
+    "grades",":", [
       {
         "Id": 201,
         "studentId": "2",
@@ -165,19 +176,29 @@
         "date": "2024-01-05",
         "category": "Participation"
       }
-    ]
+    ]]
 },
   {
     "Id": 3,
-    "firstName": "Sarah",
-    "lastName": "Williams",
-    "email": "sarah.williams@school.edu",
-    "gradeLevel": 10,
-    "attendancePercentage": 92.8,
-    "gradeAverage": 94.7,
-    "recentAssignmentScore": 98,
+    "firstName": "Michael",
+    "lastName": "Brown",
+    "email": "michael.brown@student.school.edu",
+    "gradeLevel": 11,
+    "gradeAverage": 76.3,
+    "attendancePercentage": 89.1,
     "notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
+    "Id",": 3",
+    "firstName",":", "Sarah",
+    "lastName",":", "Williams",
+    "email",":", "sarah.williams@school.edu",
+    "gradeLevel",": 10",
+    "attendancePercentage",": 92.8",
+    "gradeAverage",": 94.7",
+    "recentAssignmentScore",": 98",
+    "notes",":", "",
+    "parentContacts",":", [
       {
         "Id": 5,
         "firstName": "Mark",
@@ -191,7 +212,7 @@
         "emergencyContact": true
       }
     ],
-    "grades": [
+    "grades",":", [
       {
         "Id": 301,
         "studentId": "3",
@@ -237,19 +258,29 @@
         "date": "2024-01-05",
         "category": "Participation"
       }
-    ]
+    ]]
 },
   {
     "Id": 4,
-    "firstName": "David",
-    "lastName": "Rodriguez",
-    "email": "david.rodriguez@school.edu",
-    "gradeLevel": 10,
-    "attendancePercentage": 85.3,
-    "gradeAverage": 78.4,
-    "recentAssignmentScore": 75,
+    "firstName": "Emma",
+    "lastName": "Davis",
+    "email": "emma.davis@student.school.edu",
+    "gradeLevel": 12,
+    "gradeAverage": 94.2,
+    "attendancePercentage": 98.5,
     "notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
+    "Id",": 4",
+    "firstName",":", "David",
+    "lastName",":", "Rodriguez",
+    "email",":", "david.rodriguez@school.edu",
+    "gradeLevel",": 10",
+    "attendancePercentage",": 85.3",
+    "gradeAverage",": 78.4",
+    "recentAssignmentScore",": 75",
+    "notes",":", "",
+    "parentContacts",":", [
       {
         "Id": 6,
         "firstName": "Carlos",
@@ -275,7 +306,7 @@
         "emergencyContact": false
       }
     ],
-    "grades": [
+    "grades",":", [
       {
         "Id": 401,
         "studentId": "4",
@@ -321,19 +352,29 @@
         "date": "2024-01-05",
         "category": "Participation"
       }
-    ]
+    ]]
 },
   {
     "Id": 5,
-    "firstName": "Ashley",
-    "lastName": "Davis",
-    "email": "ashley.davis@school.edu",
-    "gradeLevel": 10,
-    "attendancePercentage": 97.1,
-    "gradeAverage": 91.2,
-    "recentAssignmentScore": 89,
+    "firstName": "James",
+    "lastName": "Wilson",
+    "email": "james.wilson@student.school.edu",
+    "gradeLevel": 9,
+    "gradeAverage": 72.8,
+    "attendancePercentage": 85.3,
     "notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
+    "Id",": 5",
+    "firstName",":", "Ashley",
+    "lastName",":", "Davis",
+    "email",":", "ashley.davis@school.edu",
+    "gradeLevel",": 10",
+    "attendancePercentage",": 97.1",
+    "gradeAverage",": 91.2",
+    "recentAssignmentScore",": 89",
+    "notes",":", "",
+    "parentContacts",":", [
       {
         "Id": 8,
         "firstName": "Jennifer",
@@ -347,7 +388,7 @@
         "emergencyContact": true
       }
     ],
-    "grades": [
+    "grades",":", [
       {
         "Id": 501,
         "studentId": "5",
@@ -393,19 +434,29 @@
         "date": "2024-01-05",
         "category": "Participation"
       }
-    ]
+    ]]
 },
   {
     "Id": 6,
-    "firstName": "James",
-    "lastName": "Thompson",
-    "email": "james.thompson@school.edu",
+    "firstName": "Olivia",
+    "lastName": "Miller",
+    "email": "olivia.miller@student.school.edu",
     "gradeLevel": 10,
-    "attendancePercentage": 91.7,
-    "gradeAverage": 85.9,
-    "recentAssignmentScore": 84,
+    "gradeAverage": 91.7,
+    "attendancePercentage": 96.8,
     "notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
+    "Id",": 6",
+    "firstName",":", "James",
+    "lastName",":", "Thompson",
+    "email",":", "james.thompson@school.edu",
+    "gradeLevel",": 10",
+    "attendancePercentage",": 91.7",
+    "gradeAverage",": 85.9",
+    "recentAssignmentScore",": 84",
+    "notes",":", "",
+    "parentContacts",":", [
       {
         "Id": 9,
         "firstName": "Michael",
@@ -431,7 +482,7 @@
         "emergencyContact": true
       }
     ],
-    "grades": [
+    "grades",":", [
       {
         "Id": 601,
         "studentId": "6",
@@ -477,19 +528,29 @@
         "date": "2024-01-05",
         "category": "Participation"
       }
-    ]
+    ]]
 },
   {
     "Id": 7,
-    "firstName": "Jessica",
-    "lastName": "Martinez",
-    "email": "jessica.martinez@school.edu",
-    "gradeLevel": 10,
-    "attendancePercentage": 89.4,
-    "gradeAverage": 88.3,
-    "recentAssignmentScore": 91,
+    "firstName": "William",
+    "lastName": "Garcia",
+    "email": "william.garcia@student.school.edu",
+    "gradeLevel": 11,
+    "gradeAverage": 83.4,
+    "attendancePercentage": 92.7,
     "notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
+    "Id",": 7",
+    "firstName",":", "Jessica",
+    "lastName",":", "Martinez",
+    "email",":", "jessica.martinez@school.edu",
+    "gradeLevel",": 10",
+    "attendancePercentage",": 89.4",
+    "gradeAverage",": 88.3",
+    "recentAssignmentScore",": 91",
+    "notes",":", "",
+    "parentContacts",":", [
       {
         "Id": 11,
         "firstName": "Juan",
@@ -515,7 +576,7 @@
         "emergencyContact": true
       }
     ],
-    "grades": [
+    "grades",":", [
       {
         "Id": 701,
         "studentId": "7",
@@ -561,19 +622,29 @@
         "date": "2024-01-05",
         "category": "Participation"
       }
-    ]
+    ]]
 },
   {
     "Id": 8,
-    "firstName": "Ryan",
-    "lastName": "Anderson",
-    "email": "ryan.anderson@school.edu",
-    "gradeLevel": 10,
-    "attendancePercentage": 93.6,
-    "gradeAverage": 90.1,
-    "recentAssignmentScore": 87,
+    "firstName": "Sophia",
+    "lastName": "Martinez",
+    "email": "sophia.martinez@student.school.edu",
+    "gradeLevel": 12,
+    "gradeAverage": 87.9,
+    "attendancePercentage": 94.3,
     "notes": "",
+    "behaviorIncidents": [],
     "parentContacts": [
+    "Id",": 8",
+    "firstName",":", "Ryan",
+    "lastName",":", "Anderson",
+    "email",":", "ryan.anderson@school.edu",
+    "gradeLevel",": 10",
+    "attendancePercentage",": 93.6",
+    "gradeAverage",": 90.1",
+    "recentAssignmentScore",": 87",
+    "notes",":", "",
+    "parentContacts",":", [
       {
         "Id": 13,
         "firstName": "Kevin",
@@ -587,7 +658,7 @@
         "emergencyContact": true
       }
     ],
-    "grades": [
+    "grades",":", [
       {
         "Id": 801,
         "studentId": "8",
@@ -633,6 +704,6 @@
         "date": "2024-01-05",
         "category": "Participation"
       }
-    ]
+    ]]
   }
 ]

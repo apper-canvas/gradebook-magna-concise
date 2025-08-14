@@ -42,6 +42,8 @@ const StudentsPage = () => {
   });
   const [studentGrades, setStudentGrades] = useState({});
   const [bulkLoading, setBulkLoading] = useState(false);
+// Behavior tracking state
+  const [showBehaviorModal, setShowBehaviorModal] = useState(false);
 
   // Class assignment state
   const [availableClasses, setAvailableClasses] = useState([]);
@@ -837,12 +839,18 @@ const getClassStats = () => {
                     className="gap-2">
                     <ApperIcon name="Edit3" size={16} />Bulk Grades
                                 </Button>
-                <Button
+<Button
                     variant={viewMode === "assignment" ? "default" : "outline"}
                     onClick={() => setViewMode("assignment")}
                     className="gap-2">
                     <ApperIcon name="Move" size={16} />Assign Classes
                                 </Button>
+                <Button
+                    onClick={() => setShowBehaviorModal(true)}
+                    variant="outline"
+                    className="gap-2">
+                    <ApperIcon name="FileText" size={16} />Log Incident
+                </Button>
             </div>
             {viewMode === "attendance" && <div className="flex items-center gap-2">
                 <ApperIcon name="Calendar" size={16} className="text-muted-foreground" />
@@ -918,6 +926,46 @@ const getClassStats = () => {
             </div>
         </CardHeader>
         <CardContent>
+{/* Behavior Modal */}
+            {showBehaviorModal && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                <Card className="w-full max-w-md">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      Quick Behavior Log
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowBehaviorModal(false)}
+                      >
+                        <ApperIcon name="X" size={16} />
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 mb-4">
+                      Select a student to log a behavior incident:
+                    </p>
+                    <div className="max-h-64 overflow-y-auto space-y-2">
+                      {filteredStudents.map((student) => (
+                        <button
+                          key={student.Id}
+                          onClick={() => {
+                            setSelectedStudent(student);
+                            setShowBehaviorModal(false);
+                          }}
+                          className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-primary-50 hover:border-primary-300 transition-colors"
+                        >
+                          <div className="font-medium">{student.firstName} {student.lastName}</div>
+                          <div className="text-sm text-gray-500">Grade {student.gradeLevel} • {student.email}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             {viewMode === "roster" ? <StudentTable
                 students={filteredStudents}
                 onStudentSelect={handleStudentSelect}

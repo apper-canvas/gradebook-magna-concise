@@ -1,3 +1,5 @@
+import React from "react";
+import Error from "@/components/ui/Error";
 import studentsData from "@/services/mockData/students_updated.json";
 
 // Category weights configuration (percentages that must sum to 100)
@@ -13,13 +15,15 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 class StudentService {
   constructor() {
-    this.students = [...studentsData];
+this.students = [...studentsData];
 this.categoryWeights = CATEGORY_WEIGHTS;
     this.currentClassId = 1; // Default to first class
     // Initialize attendance tracking
     this.attendance = new Map(); // Map<string, Map<number, string>> - date -> studentId -> status
     // Initialize parent contact ID counter
     this.nextParentContactId = 14;
+    // Initialize behavior incident ID counter
+    this.nextBehaviorIncidentId = 1;
   }
 // Get category weights configuration
   getCategoryWeights() {
@@ -311,10 +315,93 @@ async getStudentAttendanceHistory(studentId) {
             break;
         }
       }
+}
+    
+    return { history, stats };
+  }
+
+  // Behavior incident methods
+  async getBehaviorIncidents(studentId) {
+    await delay(200);
+    const student = this.students.find(s => s.Id === studentId);
+      if (!student) {
+        throw new Error("Student not found");
+      }
+      
+      // Return incidents sorted by timestamp (newest first)
+      return (student.behaviorIncidents || []).sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+      );
+    }
+
+    async addBehaviorIncident(studentId, incidentData) {
+      await delay(200);
+      const student = this.students.find(s => s.Id === studentId);
+      if (!student) {
+        throw new Error("Student not found");
+      }
+
+      if (!student.behaviorIncidents) {
+        student.behaviorIncidents = [];
+      }
+
+      const incident = {
+        Id: this.nextBehaviorIncidentId++,
+        studentId,
+        type: incidentData.type,
+        category: incidentData.category || null,
+        severity: incidentData.severity,
+        description: incidentData.description,
+        actionTaken: incidentData.actionTaken || '',
+        timestamp: new Date().toISOString()
+      };
+
+      student.behaviorIncidents.push(incident);
+      return incident;
+    }
+
+    async updateBehaviorIncident(studentId, incidentId, incidentData) {
+      await delay(200);
+      const student = this.students.find(s => s.Id === studentId);
+      if (!student) {
+        throw new Error("Student not found");
+      }
+
+      const incident = student.behaviorIncidents?.find(i => i.Id === incidentId);
+      if (!incident) {
+        throw new Error("Behavior incident not found");
+      }
+
+      Object.assign(incident, {
+        type: incidentData.type,
+        category: incidentData.category || null,
+        severity: incidentData.severity,
+        description: incidentData.description,
+        actionTaken: incidentData.actionTaken || ''
+      });
+
+      return incident;
+    }
+
+    async deleteBehaviorIncident(studentId, incidentId) {
+      await delay(200);
+      const student = this.students.find(s => s.Id === studentId);
+      if (!student || !student.behaviorIncidents) {
+        throw new Error("Student or incident not found");
+      }
+
+      const index = student.behaviorIncidents.findIndex(i => i.Id === incidentId);
+      if (index === -1) {
+        throw new Error("Behavior incident not found");
+      }
+
+      student.behaviorIncidents.splice(index, 1);
+      return true;
     }
     
     // Add running percentage calculation
-    stats.runningPercentage = stats.totalDays > 0 ? 
+// Add running percentage calculation
+    stats.runningPercentage = stats.totalDays > 0 ?
       Math.round(((stats.presentDays / stats.totalDays) * 100) * 10) / 10 : 95;
     
     return { history, stats };
@@ -708,27 +795,44 @@ async getStudentsByClass(classId) {
     };
   }
 
-  async getBehaviorDataForPeriod(studentId, startDate, endDate) {
+async getBehaviorDataForPeriod(studentId, startDate, endDate) {
     await delay(200);
     const student = await this.getById(studentId);
+    const incidents = await this.getBehaviorIncidents(studentId);
     
-    // In a real implementation, this would fetch behavior records
-    // For now, we'll use the student notes and generate some sample data
+    // Filter incidents by date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const periodIncidents = incidents.filter(incident => {
+      const incidentDate = new Date(incident.timestamp);
+      return incidentDate >= start && incidentDate <= end;
+    });
+    
+    // Calculate overall behavior score
+    const disciplinaryCount = periodIncidents.filter(i => i.type === 'disciplinary').length;
+    const positiveCount = periodIncidents.filter(i => i.type === 'positive').length;
+    
+    let overallBehavior = 'neutral';
+    if (positiveCount > disciplinaryCount) {
+      overallBehavior = 'positive';
+    } else if (disciplinaryCount > positiveCount) {
+      overallBehavior = 'negative';
+    }
+    
     return {
       notes: student.notes || '',
-      behaviorEvents: [
-        {
-          date: startDate,
-          type: 'positive',
-          description: 'Excellent participation in class discussion'
-        },
-        {
-          date: endDate,
-          type: 'neutral',
-          description: 'Completed all assignments on time'
-        }
-      ],
-      overallBehavior: 'positive'
+      behaviorEvents: periodIncidents.map(incident => ({
+        date: incident.timestamp,
+        type: incident.type,
+        category: incident.category,
+        severity: incident.severity,
+        description: incident.description,
+        actionTaken: incident.actionTaken
+      })),
+      overallBehavior,
+      totalIncidents: periodIncidents.length,
+      disciplinaryIncidents: disciplinaryCount,
+      positiveIncidents: positiveCount
     };
   }
 }
