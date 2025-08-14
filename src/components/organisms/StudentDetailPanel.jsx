@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
+import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, isSameDay, isSameMonth, startOfMonth, subMonths } from "date-fns";
 import { studentService } from "@/services/api/studentService";
 import ApperIcon from "@/components/ApperIcon";
 import GradeIndicator from "@/components/molecules/GradeIndicator";
 import FormField from "@/components/molecules/FormField";
+import StudentGradeTrendsChart from "@/components/molecules/StudentGradeTrendsChart";
+import Loading from "@/components/ui/Loading";
 import Button from "@/components/atoms/Button";
 import Badge from "@/components/atoms/Badge";
 import Label from "@/components/atoms/Label";
 import Card, { CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
 import Input from "@/components/atoms/Input";
-import StudentGradeTrendsChart from "@/components/molecules/StudentGradeTrendsChart";
-const StudentDetailPanel = ({ student, onClose, onGradeAdd }) => {
+export default function StudentDetailPanel({ student, onClose, onGradeAdd, onParentContactAdd, onParentContactUpdate, onParentContactDelete }) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [notes, setNotes] = useState(student.notes || "");
   const [isSavingNotes, setIsSavingNotes] = useState(false);
@@ -26,6 +27,21 @@ const StudentDetailPanel = ({ student, onClose, onGradeAdd }) => {
     maxScore: "100",
     date: new Date().toISOString().split("T")[0],
     category: "Test"
+  });
+  
+  // Parent Contact Management State
+  const [showParentContactForm, setShowParentContactForm] = useState(false);
+  const [editingParentContact, setEditingParentContact] = useState(null);
+  const [newParentContact, setNewParentContact] = useState({
+    firstName: "",
+    lastName: "",
+    relationship: "Parent",
+    email: "",
+    phone: "",
+    workPhone: "",
+    address: "",
+    isPrimary: false,
+    emergencyContact: false
   });
 
 useEffect(() => {
@@ -120,95 +136,87 @@ useEffect(() => {
 
     return (
       <div className="space-y-4">
-        {/* Calendar Header */}
-        <div className="flex items-center justify-between">
-          <Button
+    {/* Calendar Header */}
+    <div className="flex items-center justify-between">
+        <Button
             variant="ghost"
             size="sm"
             onClick={() => setCurrentCalendarMonth(subMonths(currentCalendarMonth, 1))}
-            className="h-8 w-8 p-0"
-          >
+            className="h-8 w-8 p-0">
             <ApperIcon name="ChevronLeft" className="h-4 w-4" />
-          </Button>
-          
-          <h3 className="text-lg font-semibold text-slate-900">
-            {format(currentCalendarMonth, 'MMMM yyyy')}
-          </h3>
-          
-          <Button
+        </Button>
+        <h3 className="text-lg font-semibold text-slate-900">
+            {format(currentCalendarMonth, "MMMM yyyy")}
+        </h3>
+        <Button
             variant="ghost"
             size="sm"
             onClick={() => setCurrentCalendarMonth(addMonths(currentCalendarMonth, 1))}
-            className="h-8 w-8 p-0"
-          >
+            className="h-8 w-8 p-0">
             <ApperIcon name="ChevronRight" className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="text-center text-xs font-medium text-slate-600 py-2">
-              {day}
+        </Button>
+    </div>
+    {/* Days of Week Header */}
+    <div className="grid grid-cols-7 gap-1 mb-2">
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
+            day => <div key={day} className="text-center text-xs font-medium text-slate-600 py-2">
+                {day}
             </div>
-          ))}
-        </div>
-
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {allDays.map((day, index) => {
+        )}
+    </div>
+    {/* Calendar Grid */}
+    <div className="grid grid-cols-7 gap-1">
+        {allDays.map((day, index) => {
             if (!day) {
-              return <div key={index} className="h-10"></div>;
+                return <div key={index} className="h-10"></div>;
             }
 
             const status = getAttendanceStatusForDate(day);
             const isCurrentMonth = isSameMonth(day, currentCalendarMonth);
             const isToday = isSameDay(day, new Date());
-            
-            return (
-              <button
-                key={day.toISOString()}
-                onClick={() => handleDateClick(day)}
-                disabled={!isCurrentMonth}
-                className={`
-                  h-10 w-10 text-sm font-medium rounded-lg transition-all duration-200
-                  ${isCurrentMonth ? 'hover:bg-slate-100' : 'opacity-30 cursor-not-allowed'}
-                  ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''}
-                  ${status ? getStatusColor(status) + ' text-white hover:opacity-90' : 'text-slate-700 hover:bg-slate-100'}
-                  ${!status && isCurrentMonth ? 'border border-slate-200' : ''}
-                `}
-                title={status ? `${format(day, 'MMM d')}: ${status}` : format(day, 'MMM d')}
-              >
-                {format(day, 'd')}
-              </button>
-            );
-          })}
-        </div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap gap-4 text-xs">
-          <div className="flex items-center gap-2">
+            return (
+                <button
+                    key={day.toISOString()}
+                    onClick={() => handleDateClick(day)}
+                    disabled={!isCurrentMonth}
+                    className={`
+                  h-10 w-10 text-sm font-medium rounded-lg transition-all duration-200
+                  ${isCurrentMonth ? "hover:bg-slate-100" : "opacity-30 cursor-not-allowed"}
+                  ${isToday ? "ring-2 ring-primary-500 ring-offset-1" : ""}
+                  ${status ? getStatusColor(status) + " text-white hover:opacity-90" : "text-slate-700 hover:bg-slate-100"}
+                  ${!status && isCurrentMonth ? "border border-slate-200" : ""}
+                `}
+                    title={status ? `${format(day, "MMM d")}: ${status}` : format(day, "MMM d")}>
+                    {format(day, "d")}
+                </button>
+            );
+        })}
+    </div>
+    {/* Legend */}
+    <div className="flex flex-wrap gap-4 text-xs">
+        <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-success-500"></div>
             <span className="text-slate-600">Present</span>
-          </div>
-          <div className="flex items-center gap-2">
+        </div>
+        <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-warning-500"></div>
             <span className="text-slate-600">Late</span>
-          </div>
-          <div className="flex items-center gap-2">
+        </div>
+        <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-error-500"></div>
             <span className="text-slate-600">Absent</span>
-          </div>
-          <div className="flex items-center gap-2">
+        </div>
+        <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-primary-500"></div>
             <span className="text-slate-600">Excused</span>
-          </div>
-          <div className="flex items-center gap-2">
+        </div>
+        <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded border border-slate-300"></div>
             <span className="text-slate-600">No Record</span>
-          </div>
         </div>
-      </div>
+    </div>
+</div>
     );
   };
   const handleAddGrade = () => {
@@ -257,6 +265,88 @@ const handleNotesUpdate = async () => {
     } finally {
       setIsSavingNotes(false);
     }
+};
+
+  // Parent Contact Management Functions
+  const handleAddParentContact = () => {
+    if (!newParentContact.firstName.trim() || !newParentContact.lastName.trim()) {
+      toast.error("Please fill in first name and last name");
+      return;
+    }
+
+    onParentContactAdd(student.Id, newParentContact);
+    setNewParentContact({
+      firstName: "",
+      lastName: "",
+      relationship: "Parent",
+      email: "",
+      phone: "",
+      workPhone: "",
+      address: "",
+      isPrimary: false,
+      emergencyContact: false
+    });
+    setShowParentContactForm(false);
+  };
+
+  const handleEditParentContact = (contact) => {
+    setEditingParentContact(contact);
+    setNewParentContact({
+      firstName: contact.firstName,
+      lastName: contact.lastName,
+      relationship: contact.relationship,
+      email: contact.email || "",
+      phone: contact.phone || "",
+      workPhone: contact.workPhone || "",
+      address: contact.address || "",
+      isPrimary: contact.isPrimary,
+      emergencyContact: contact.emergencyContact
+    });
+    setShowParentContactForm(true);
+  };
+
+  const handleUpdateParentContact = () => {
+    if (!newParentContact.firstName.trim() || !newParentContact.lastName.trim()) {
+      toast.error("Please fill in first name and last name");
+      return;
+    }
+
+    onParentContactUpdate(student.Id, editingParentContact.Id, newParentContact);
+    setEditingParentContact(null);
+    setNewParentContact({
+      firstName: "",
+      lastName: "",
+      relationship: "Parent",
+      email: "",
+      phone: "",
+      workPhone: "",
+      address: "",
+      isPrimary: false,
+      emergencyContact: false
+    });
+    setShowParentContactForm(false);
+  };
+
+  const handleDeleteParentContact = (contactId) => {
+    if (window.confirm("Are you sure you want to delete this parent contact?")) {
+      onParentContactDelete(student.Id, contactId);
+    }
+  };
+
+  const handleCancelParentContactForm = () => {
+    setShowParentContactForm(false);
+    setEditingParentContact(null);
+    setNewParentContact({
+      firstName: "",
+      lastName: "",
+      relationship: "Parent",
+      email: "",
+      phone: "",
+      workPhone: "",
+      address: "",
+      isPrimary: false,
+      emergencyContact: false
+    });
   };
 
   const getGradeVariant = (percentage) => {
@@ -267,371 +357,604 @@ const handleNotesUpdate = async () => {
   };
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+    <motion.div
+        initial={{
+            opacity: 0
+        }}
+        animate={{
+            opacity: 1
+        }}
+        exit={{
+            opacity: 0
+        }}
         className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-        onClick={onClose}
-      >
+        onClick={onClose}>
         <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 50 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 50 }}
-          className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="bg-gradient-to-r from-primary-600 to-accent-600 px-6 py-8 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30">
-                  {student.firstName.charAt(0)}{student.lastName.charAt(0)}
+            initial={{
+                scale: 0.9,
+                opacity: 0,
+                y: 50
+            }}
+            animate={{
+                scale: 1,
+                opacity: 1,
+                y: 0
+            }}
+            exit={{
+                scale: 0.9,
+                opacity: 0,
+                y: 50
+            }}
+            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div
+                className="bg-gradient-to-r from-primary-600 to-accent-600 px-6 py-8 text-white">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <div
+                            className="h-16 w-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-2xl font-bold border-2 border-white/30">
+                            {student.firstName.charAt(0)}{student.lastName.charAt(0)}
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-bold">{student.firstName} {student.lastName}</h2>
+                            <p className="text-white/80 font-medium">Grade {student.gradeLevel}• {student.email}</p>
+                        </div>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={onClose}
+                        className="text-white hover:bg-white/20 border-white/30">
+                        <ApperIcon name="X" className="h-5 w-5" />
+                    </Button>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold">{student.firstName} {student.lastName}</h2>
-                  <p className="text-white/80 font-medium">Grade {student.gradeLevel} • {student.email}</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="text-white hover:bg-white/20 border-white/30"
-              >
-                <ApperIcon name="X" className="h-5 w-5" />
-              </Button>
             </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-            {/* Stats Overview */}
-<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="p-6 text-center bg-gradient-to-br from-success-50 to-success-100 border-success-200">
-                <div className="text-3xl font-bold gradient-text mb-2">
-                  {student.gradeAverage.toFixed(1)}%
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                {/* Stats Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <Card
+                        className="p-6 text-center bg-gradient-to-br from-success-50 to-success-100 border-success-200">
+                        <div className="text-3xl font-bold gradient-text mb-2">
+                            {student.gradeAverage.toFixed(1)}%
+                                            </div>
+                        <div className="text-sm text-success-700 font-semibold">Weighted Average</div>
+                    </Card>
+                    <Card
+                        className="p-6 text-center bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200">
+                        <div className="text-3xl font-bold gradient-text mb-2">
+                            {student.attendancePercentage.toFixed(1)}%
+                                            </div>
+                        <div className="text-sm text-primary-700 font-semibold">Attendance Rate
+                                              <div className="text-xs text-primary-600 mt-1">Running: {Object.keys(attendanceHistory).length > 0 ? `${Object.keys(attendanceHistory).length} days tracked` : "Based on default rate"}
+                            </div>
+                        </div>
+                    </Card>
+                    <Card
+                        className="p-6 text-center bg-gradient-to-br from-accent-50 to-accent-100 border-accent-200">
+                        <div className="text-3xl font-bold gradient-text mb-2">
+                            {student.grades.length}
+                        </div>
+                        <div className="text-sm text-accent-700 font-semibold">Total Assignments</div>
+                    </Card>
                 </div>
-                <div className="text-sm text-success-700 font-semibold">Weighted Average</div>
-              </Card>
-              <Card className="p-6 text-center bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200">
-<div className="text-3xl font-bold gradient-text mb-2">
-                  {student.attendancePercentage.toFixed(1)}%
-                </div>
-                <div className="text-sm text-primary-700 font-semibold">
-                  Attendance Rate
-                  <div className="text-xs text-primary-600 mt-1">
-                    Running: {Object.keys(attendanceHistory).length > 0 ? 
-                      `${Object.keys(attendanceHistory).length} days tracked` : 
-                      'Based on default rate'
-                    }
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-6 text-center bg-gradient-to-br from-accent-50 to-accent-100 border-accent-200">
-                <div className="text-3xl font-bold gradient-text mb-2">
-                  {student.grades.length}
-                </div>
-                <div className="text-sm text-accent-700 font-semibold">Total Assignments</div>
-              </Card>
             </div>
-
+            {/* Parent/Guardian Contact Information */}
+            <Card className="mb-8">
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                            <ApperIcon name="Users" className="h-5 w-5 text-primary-600" />Parent/Guardian Contacts
+                                              </CardTitle>
+                        <Button onClick={() => setShowParentContactForm(true)} className="gap-2">
+                            <ApperIcon name="UserPlus" className="h-4 w-4" />Add Contact
+                                              </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <AnimatePresence>
+                        {showParentContactForm && <motion.div
+                            initial={{
+                                height: 0,
+                                opacity: 0
+                            }}
+                            animate={{
+                                height: "auto",
+                                opacity: 1
+                            }}
+                            exit={{
+                                height: 0,
+                                opacity: 0
+                            }}
+                            className="mb-6 p-6 bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg border-2 border-primary-200">
+                            <h4 className="text-lg font-semibold text-slate-900 mb-4">
+                                {editingParentContact ? "Edit Parent Contact" : "Add New Parent Contact"}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField label="First Name" required>
+                                    <Input
+                                        placeholder="Enter first name"
+                                        value={newParentContact.firstName}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            firstName: e.target.value
+                                        })} />
+                                </FormField>
+                                <FormField label="Last Name" required>
+                                    <Input
+                                        placeholder="Enter last name"
+                                        value={newParentContact.lastName}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            lastName: e.target.value
+                                        })} />
+                                </FormField>
+                                <FormField label="Relationship">
+                                    <select
+                                        className="flex w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                                        value={newParentContact.relationship}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            relationship: e.target.value
+                                        })}>
+                                        <option value="Parent">Parent</option>
+                                        <option value="Father">Father</option>
+                                        <option value="Mother">Mother</option>
+                                        <option value="Guardian">Guardian</option>
+                                        <option value="Grandparent">Grandparent</option>
+                                        <option value="Step-parent">Step-parent</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </FormField>
+                                <FormField label="Email Address">
+                                    <Input
+                                        type="email"
+                                        placeholder="Enter email address"
+                                        value={newParentContact.email}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            email: e.target.value
+                                        })} />
+                                </FormField>
+                                <FormField label="Phone Number">
+                                    <Input
+                                        placeholder="Enter phone number"
+                                        value={newParentContact.phone}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            phone: e.target.value
+                                        })} />
+                                </FormField>
+                                <FormField label="Work Phone">
+                                    <Input
+                                        placeholder="Enter work phone number"
+                                        value={newParentContact.workPhone}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            workPhone: e.target.value
+                                        })} />
+                                </FormField>
+                                <FormField label="Address" className="md:col-span-2">
+                                    <Input
+                                        placeholder="Enter home address"
+                                        value={newParentContact.address}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            address: e.target.value
+                                        })} />
+                                </FormField>
+                            </div>
+                            <div className="flex items-center gap-6 mt-6">
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={newParentContact.isPrimary}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            isPrimary: e.target.checked
+                                        })}
+                                        className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500" />
+                                    <span className="text-sm font-medium text-slate-700">Primary Contact</span>
+                                </label>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={newParentContact.emergencyContact}
+                                        onChange={e => setNewParentContact({
+                                            ...newParentContact,
+                                            emergencyContact: e.target.checked
+                                        })}
+                                        className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500" />
+                                    <span className="text-sm font-medium text-slate-700">Emergency Contact</span>
+                                </label>
+                            </div>
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <Button variant="secondary" onClick={handleCancelParentContactForm}>Cancel
+                                                            </Button>
+                                <Button
+                                    onClick={editingParentContact ? handleUpdateParentContact : handleAddParentContact}>
+                                    {editingParentContact ? "Update Contact" : "Add Contact"}
+                                </Button>
+                            </div>
+                        </motion.div>}
+                    </AnimatePresence>
+                    <div className="space-y-4">
+                        {student.parentContacts && student.parentContacts.length > 0 ? student.parentContacts.map(contact => <motion.div
+                            key={contact.Id}
+                            initial={{
+                                opacity: 0,
+                                y: 20
+                            }}
+                            animate={{
+                                opacity: 1,
+                                y: 0
+                            }}
+                            className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div
+                                            className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center text-white font-semibold text-sm">
+                                            {contact.firstName[0]}{contact.lastName[0]}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-slate-900 text-lg">
+                                                {contact.firstName} {contact.lastName}
+                                            </h4>
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="default" className="text-xs">
+                                                    {contact.relationship}
+                                                </Badge>
+                                                {contact.isPrimary && <Badge variant="success" className="text-xs">Primary
+                                                                                        </Badge>}
+                                                {contact.emergencyContact && <Badge variant="warning" className="text-xs">Emergency
+                                                                                        </Badge>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-sm">
+                                        {contact.email && <div className="flex items-center gap-2">
+                                            <ApperIcon name="Mail" className="h-4 w-4 text-slate-500" />
+                                            <span className="text-slate-700">{contact.email}</span>
+                                        </div>}
+                                        {contact.phone && <div className="flex items-center gap-2">
+                                            <ApperIcon name="Phone" className="h-4 w-4 text-slate-500" />
+                                            <span className="text-slate-700">{contact.phone}</span>
+                                        </div>}
+                                        {contact.workPhone && <div className="flex items-center gap-2">
+                                            <ApperIcon name="Briefcase" className="h-4 w-4 text-slate-500" />
+                                            <span className="text-slate-700">{contact.workPhone}</span>
+                                        </div>}
+                                        {contact.address && <div className="flex items-center gap-2 md:col-span-2">
+                                            <ApperIcon name="MapPin" className="h-4 w-4 text-slate-500" />
+                                            <span className="text-slate-700">{contact.address}</span>
+                                        </div>}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 ml-4">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleEditParentContact(contact)}
+                                        className="gap-1">
+                                        <ApperIcon name="Edit" className="h-4 w-4" />Edit
+                                                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleDeleteParentContact(contact.Id)}
+                                        className="gap-1 text-error-600 hover:text-error-700 hover:bg-error-50">
+                                        <ApperIcon name="Trash2" className="h-4 w-4" />Delete
+                                                                    </Button>
+                                </div>
+                            </div>
+                        </motion.div>) : <div className="text-center py-12">
+                            <ApperIcon name="Users" className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                            <p className="text-slate-500 font-medium">No parent contacts added yet</p>
+                            <p className="text-sm text-slate-400">Add parent or guardian contact information to get started</p>
+                        </div>}
+                    </div>
+                </CardContent>
+            </Card>
             {/* Category Breakdown */}
             <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Grade Categories</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {(() => {
-const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id);
-                    const categoryWeights = studentService.getCategoryWeights();
-                    return Object.entries(categoryWeights).map(([category, weight]) => {
-                      const data = categoryBreakdown[category] || { average: 0, count: 0 };
-                      return (
-                        <motion.div
-                          key={category}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="font-semibold text-slate-900">{category}</h4>
-                            <Badge variant="default" className="text-xs">
-                              {weight}%
-                            </Badge>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-2xl font-bold text-slate-900">
-                              {data.average.toFixed(1)}%
-                            </div>
-                            <div className="text-sm text-slate-600">
-                              {data.count} item{data.count !== 1 ? 's' : ''}
-                            </div>
-                          </div>
-                          <div className="w-full bg-slate-200 rounded-full h-2 mt-3">
-                            <div 
-                              className="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${Math.min(data.average, 100)}%` }}
-                            />
-                          </div>
-                        </motion.div>
-                      );
-                    });
-                  })()}
-                </div>
-              </CardContent>
-</Card>
+                <CardHeader>
+                    <CardTitle>Grade Categories</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {(() => {
+                            const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id);
+                            const categoryWeights = studentService.getCategoryWeights();
 
+                            return Object.entries(categoryWeights).map(([category, weight]) => {
+                                const data = categoryBreakdown[category] || {
+                                    average: 0,
+                                    count: 0
+                                };
+
+                                return (
+                                    <motion.div
+                                        key={category}
+                                        initial={{
+                                            opacity: 0,
+                                            y: 20
+                                        }}
+                                        animate={{
+                                            opacity: 1,
+                                            y: 0
+                                        }}
+                                        className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="font-semibold text-slate-900">{category}</h4>
+                                            <Badge variant="default" className="text-xs">
+                                                {weight}%
+                                                                            </Badge>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-2xl font-bold text-slate-900">
+                                                {data.average.toFixed(1)}%
+                                                                            </div>
+                                            <div className="text-sm text-slate-600">
+                                                {data.count}item{data.count !== 1 ? "s" : ""}
+                                            </div>
+                                        </div>
+                                        <div className="w-full bg-slate-200 rounded-full h-2 mt-3">
+                                            <div
+                                                className="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full transition-all duration-300"
+                                                style={{
+                                                    width: `${Math.min(data.average, 100)}%`
+                                                }} />
+                                        </div>
+                                    </motion.div>
+                                );
+                            });
+                        })()}
+                    </div>
+                </CardContent>
+            </Card>
             {/* Grade Trends Chart */}
-<div className="mb-8">
-              <StudentGradeTrendsChart student={currentStudent} />
+            <div className="mb-8">
+                <StudentGradeTrendsChart student={currentStudent} />
             </div>
-
             {/* Personal Notes Section */}
             <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Personal Notes & Comments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Label htmlFor="student-notes" className="text-sm font-semibold text-slate-700">
-                    Add personal observations, behavior notes, or comments about {student.firstName}
-                  </Label>
-                  <div className="relative">
-                    <textarea
-                      id="student-notes"
-                      placeholder="Enter your notes and observations about this student..."
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      onBlur={handleNotesUpdate}
-                      className="flex w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y transition-all duration-200"
-                      disabled={isSavingNotes}
-                    />
-                    {isSavingNotes && (
-                      <div className="absolute top-3 right-3">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"></div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Notes are automatically saved when you click outside the text area</span>
-                    <span>{notes.length} characters</span>
-                  </div>
-                  {notes.trim() && (
-                    <div className="flex items-center gap-2 text-sm text-success-600 font-medium">
-                      <ApperIcon name="CheckCircle" className="h-4 w-4" />
-                      Notes saved successfully
+                <CardHeader>
+                    <CardTitle>Personal Notes & Comments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <Label htmlFor="student-notes" className="text-sm font-semibold text-slate-700">Add personal observations, behavior notes, or comments about {student.firstName}
+                        </Label>
+                        <div className="relative">
+                            <textarea
+                                id="student-notes"
+                                placeholder="Enter your notes and observations about this student..."
+                                value={notes}
+                                onChange={e => setNotes(e.target.value)}
+                                onBlur={handleNotesUpdate}
+                                className="flex w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y transition-all duration-200"
+                                disabled={isSavingNotes} />
+                            {isSavingNotes && <div className="absolute top-3 right-3">
+                                <div
+                                    className="h-4 w-4 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"></div>
+                            </div>}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-slate-500">
+                            <span>Notes are automatically saved when you click outside the text area</span>
+                            <span>{notes.length}characters</span>
+                        </div>
+                        {notes.trim() && <div className="flex items-center gap-2 text-sm text-success-600 font-medium">
+                            <ApperIcon name="CheckCircle" className="h-4 w-4" />Notes saved successfully
+                                                </div>}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-</Card>
-
-            {/* Attendance Calendar */}
-<Card className="mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ApperIcon name="Calendar" className="h-5 w-5 text-primary-600" />
-                  Attendance Calendar
-                  <Badge variant="secondary" className="ml-2">
-                    {student.attendancePercentage.toFixed(1)}% Running Average
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingAttendance ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"></div>
-                    <span className="ml-3 text-slate-600">Loading attendance history...</span>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg border border-primary-200">
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium text-primary-700">
-                          Live Tracking: {Object.keys(attendanceHistory).length} days recorded
-                        </span>
-                      </div>
-                      <div className="text-sm font-semibold text-primary-600">
-                        Current Rate: {student.attendancePercentage.toFixed(1)}%
-                      </div>
-                    </div>
-                    {renderCalendar()}
-                  </div>
-                )}
-              </CardContent>
+                </CardContent>
             </Card>
-
+            {/* Attendance Calendar */}
+            <Card className="mb-8">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <ApperIcon name="Calendar" className="h-5 w-5 text-primary-600" />Attendance Calendar
+                                          <Badge variant="secondary" className="ml-2">
+                            {student.attendancePercentage.toFixed(1)}% Running Average
+                                              </Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {loadingAttendance ? <div className="flex items-center justify-center py-8">
+                        <div
+                            className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"></div>
+                        <span className="ml-3 text-slate-600">Loading attendance history...</span>
+                    </div> : <div className="space-y-4">
+                        <div
+                            className="flex items-center justify-between p-3 bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg border border-primary-200">
+                            <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
+                                <span className="text-sm font-medium text-primary-700">Live Tracking: {Object.keys(attendanceHistory).length}days recorded
+                                                            </span>
+                            </div>
+                            <div className="text-sm font-semibold text-primary-600">Current Rate: {student.attendancePercentage.toFixed(1)}%
+                                                      </div>
+                        </div>
+                        {renderCalendar()}
+                    </div>}
+                </CardContent>
+            </Card>
             {/* Add Grade Section */}
             <Card className="mb-8">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Grade Management</CardTitle>
-                  <Button
-                    onClick={() => setShowAddForm(!showAddForm)}
-                    className="gap-2"
-                  >
-                    <ApperIcon name="Plus" className="h-4 w-4" />
-                    Add Grade
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <AnimatePresence>
-                  {showAddForm && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="mb-6 p-6 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border-2 border-slate-200"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField label="Assignment Name" required>
-                          <Input
-                            placeholder="Enter assignment name"
-                            value={newGrade.assignmentName}
-                            onChange={(e) => setNewGrade({ ...newGrade, assignmentName: e.target.value })}
-                          />
-                        </FormField>
-                        <FormField label="Category">
-                          <select
-                            className="flex w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                            value={newGrade.category}
-                            onChange={(e) => setNewGrade({ ...newGrade, category: e.target.value })}
-                          >
-                            <option value="Test">Test (35%)</option>
-                            <option value="Quiz">Quiz (20%)</option>
-                            <option value="Homework">Homework (20%)</option>
-                            <option value="Project">Project (15%)</option>
-                            <option value="Participation">Participation (10%)</option>
-                          </select>
-                        </FormField>
-                        <FormField label="Score" required>
-                          <Input
-                            type="number"
-                            placeholder="Enter score"
-                            value={newGrade.score}
-                            onChange={(e) => setNewGrade({ ...newGrade, score: e.target.value })}
-                            min="0"
-                            max={newGrade.maxScore}
-                            step="0.1"
-                          />
-                        </FormField>
-                        <FormField label="Max Score">
-                          <Input
-                            type="number"
-                            placeholder="Maximum points"
-                            value={newGrade.maxScore}
-                            onChange={(e) => setNewGrade({ ...newGrade, maxScore: e.target.value })}
-                            min="1"
-                            step="0.1"
-                          />
-                        </FormField>
-                        <FormField label="Date">
-                          <Input
-                            type="date"
-                            value={newGrade.date}
-                            onChange={(e) => setNewGrade({ ...newGrade, date: e.target.value })}
-                          />
-                        </FormField>
-                      </div>
-                      <div className="flex justify-end space-x-3 mt-6">
-                        <Button
-                          variant="secondary"
-                          onClick={() => setShowAddForm(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button onClick={handleAddGrade}>
-                          Add Grade
-                        </Button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </CardContent>
-            </Card>
-
-{/* Grades History by Category */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Grade History by Category</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {student.grades.length === 0 ? (
-                  <div className="text-center py-12">
-                    <ApperIcon name="BookOpen" className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                    <p className="text-slate-500 font-medium">No grades recorded yet</p>
-                    <p className="text-sm text-slate-400">Add the first assignment grade to get started</p>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {(() => {
-const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id);
-                      const categoryWeights = studentService.getCategoryWeights();
-                      return Object.entries(categoryBreakdown).map(([category, data]) => (
-                        <motion.div
-                          key={category}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="border-l-4 border-primary-500 pl-4"
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-3">
-                              <h3 className="text-lg font-semibold text-slate-900">{category}</h3>
-                              <Badge variant="default" className="text-xs">
-                                Weight: {categoryWeights[category] || 0}%
-                              </Badge>
-                              <Badge variant={getGradeVariant(data.average)}>
-                                Avg: {data.average.toFixed(1)}%
-                              </Badge>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle>Grade Management</CardTitle>
+                        <Button onClick={() => setShowAddForm(!showAddForm)} className="gap-2">
+                            <ApperIcon name="Plus" className="h-4 w-4" />Add Grade
+                                              </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <AnimatePresence>
+                        {showAddForm && <motion.div
+                            initial={{
+                                height: 0,
+                                opacity: 0
+                            }}
+                            animate={{
+                                height: "auto",
+                                opacity: 1
+                            }}
+                            exit={{
+                                height: 0,
+                                opacity: 0
+                            }}
+                            className="mb-6 p-6 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border-2 border-slate-200">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField label="Assignment Name" required>
+                                    <Input
+                                        placeholder="Enter assignment name"
+                                        value={newGrade.assignmentName}
+                                        onChange={e => setNewGrade({
+                                            ...newGrade,
+                                            assignmentName: e.target.value
+                                        })} />
+                                </FormField>
+                                <FormField label="Category">
+                                    <select
+                                        className="flex w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                                        value={newGrade.category}
+                                        onChange={e => setNewGrade({
+                                            ...newGrade,
+                                            category: e.target.value
+                                        })}>
+                                        <option value="Test">Test (35%)</option>
+                                        <option value="Quiz">Quiz (20%)</option>
+                                        <option value="Homework">Homework (20%)</option>
+                                        <option value="Project">Project (15%)</option>
+                                        <option value="Participation">Participation (10%)</option>
+                                    </select>
+                                </FormField>
+                                <FormField label="Score" required>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter score"
+                                        value={newGrade.score}
+                                        onChange={e => setNewGrade({
+                                            ...newGrade,
+                                            score: e.target.value
+                                        })}
+                                        min="0"
+                                        max={newGrade.maxScore}
+                                        step="0.1" />
+                                </FormField>
+                                <FormField label="Max Score">
+                                    <Input
+                                        type="number"
+                                        placeholder="Maximum points"
+                                        value={newGrade.maxScore}
+                                        onChange={e => setNewGrade({
+                                            ...newGrade,
+                                            maxScore: e.target.value
+                                        })}
+                                        min="1"
+                                        step="0.1" />
+                                </FormField>
+                                <FormField label="Date">
+                                    <Input
+                                        type="date"
+                                        value={newGrade.date}
+                                        onChange={e => setNewGrade({
+                                            ...newGrade,
+                                            date: e.target.value
+                                        })} />
+                                </FormField>
                             </div>
-                          </div>
-                          
-                          <div className="space-y-3 ml-4">
-                            {data.grades.map((grade) => {
-                              const percentage = (grade.score / grade.maxScore) * 100;
-                              return (
-                                <motion.div
-                                  key={grade.Id}
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  className="flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow"
-                                >
-                                  <div className="flex-1">
-                                    <h4 className="font-semibold text-slate-900 mb-1">{grade.assignmentName}</h4>
-                                    <p className="text-sm text-slate-600 font-medium">
-                                      {format(new Date(grade.date), "MMMM d, yyyy")}
-                                    </p>
-                                  </div>
-                                  <div className="text-right">
-                                    <div className="flex items-center space-x-3 mb-1">
-                                      <span className="text-lg font-bold text-slate-900">
-                                        {grade.score}/{grade.maxScore}
-                                      </span>
-                                      <Badge variant={getGradeVariant(percentage)}>
-                                        {percentage.toFixed(1)}%
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              );
-                            })}
-                          </div>
-                        </motion.div>
-));
-                    })()}
-                  </div>
-                )}
-              </CardContent>
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <Button variant="secondary" onClick={() => setShowAddForm(false)}>Cancel
+                                                            </Button>
+                                <Button onClick={handleAddGrade}>Add Grade
+                                                            </Button>
+                            </div>
+                        </motion.div>}
+                    </AnimatePresence>
+                </CardContent>
             </Card>
-          </div>
+            {/* Grades History by Category */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Grade History by Category</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {student.grades.length === 0 ? <div className="text-center py-12">
+                        <ApperIcon name="BookOpen" className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                        <p className="text-slate-500 font-medium">No grades recorded yet</p>
+                        <p className="text-sm text-slate-400">Add the first assignment grade to get started</p>
+                    </div> : <div className="space-y-6">
+                        {(() => {
+                            const categoryBreakdown = studentService.getCategoryBreakdown(currentStudent.Id);
+                            const categoryWeights = studentService.getCategoryWeights();
+
+                            return Object.entries(categoryBreakdown).map(([category, data]) => <motion.div
+                                key={category}
+                                initial={{
+                                    opacity: 0,
+                                    y: 20
+                                }}
+                                animate={{
+                                    opacity: 1,
+                                    y: 0
+                                }}
+                                className="border-l-4 border-primary-500 pl-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center space-x-3">
+                                        <h3 className="text-lg font-semibold text-slate-900">{category}</h3>
+                                        <Badge variant="default" className="text-xs">Weight: {categoryWeights[category] || 0}%
+                                                                          </Badge>
+                                        <Badge variant={getGradeVariant(data.average)}>Avg: {data.average.toFixed(1)}%
+                                                                          </Badge>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 ml-4">
+                                    {data.grades.map(grade => {
+                                        const percentage = grade.score / grade.maxScore * 100;
+
+                                        return (
+                                            <motion.div
+                                                key={grade.Id}
+                                                initial={{
+                                                    opacity: 0,
+                                                    x: -10
+                                                }}
+                                                animate={{
+                                                    opacity: 1,
+                                                    x: 0
+                                                }}
+                                                className="flex items-center justify-between p-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                                                <div className="flex-1">
+                                                    <h4 className="font-semibold text-slate-900 mb-1">{grade.assignmentName}</h4>
+                                                    <p className="text-sm text-slate-600 font-medium">
+                                                        {format(new Date(grade.date), "MMMM d, yyyy")}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="flex items-center space-x-3 mb-1">
+                                                        <span className="text-lg font-bold text-slate-900">
+                                                            {grade.score}/{grade.maxScore}
+                                                        </span>
+                                                        <Badge variant={getGradeVariant(percentage)}>
+                                                            {percentage.toFixed(1)}%
+                                                                                                  </Badge>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+                            </motion.div>);
+                        })()}
+                    </div>}
+                </CardContent>
+            </Card>
         </motion.div>
-      </motion.div>
-    </AnimatePresence>
+    </motion.div>
+</AnimatePresence>
   );
 };
-
-export default StudentDetailPanel;

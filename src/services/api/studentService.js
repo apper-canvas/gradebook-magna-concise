@@ -14,10 +14,12 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 class StudentService {
   constructor() {
     this.students = [...studentsData];
-    this.categoryWeights = CATEGORY_WEIGHTS;
+this.categoryWeights = CATEGORY_WEIGHTS;
     this.currentClassId = 1; // Default to first class
     // Initialize attendance tracking
     this.attendance = new Map(); // Map<string, Map<number, string>> - date -> studentId -> status
+    // Initialize parent contact ID counter
+    this.nextParentContactId = 14;
   }
 // Get category weights configuration
   getCategoryWeights() {
@@ -504,8 +506,7 @@ student.recentAssignmentScore = 0;
       throw new Error(`Failed to unassign students from class: ${error.message}`);
     }
   }
-
-  async getStudentsByClass(classId) {
+async getStudentsByClass(classId) {
     await delay(200);
     
     if (classId) {
@@ -515,6 +516,103 @@ student.recentAssignmentScore = 0;
     }
     
     return [...this.students];
+  }
+
+  // Parent Contact Management Methods
+  async addParentContact(studentId, contactData) {
+    await delay(300);
+    
+    const studentIndex = this.students.findIndex(s => s.Id === parseInt(studentId));
+    if (studentIndex === -1) {
+      throw new Error('Student not found');
+    }
+
+    if (!this.students[studentIndex].parentContacts) {
+      this.students[studentIndex].parentContacts = [];
+    }
+
+    const newContact = {
+      Id: this.nextParentContactId++,
+      firstName: contactData.firstName,
+      lastName: contactData.lastName,
+      relationship: contactData.relationship,
+      email: contactData.email || '',
+      phone: contactData.phone || '',
+      workPhone: contactData.workPhone || '',
+      address: contactData.address || '',
+      isPrimary: contactData.isPrimary || false,
+      emergencyContact: contactData.emergencyContact || false
+    };
+
+    // If this is set as primary, make others non-primary
+    if (newContact.isPrimary) {
+      this.students[studentIndex].parentContacts.forEach(contact => {
+        contact.isPrimary = false;
+      });
+    }
+
+    this.students[studentIndex].parentContacts.push(newContact);
+    
+    return this.students[studentIndex];
+  }
+
+  async updateParentContact(studentId, contactId, contactData) {
+    await delay(300);
+    
+    const studentIndex = this.students.findIndex(s => s.Id === parseInt(studentId));
+    if (studentIndex === -1) {
+      throw new Error('Student not found');
+    }
+
+    const contactIndex = this.students[studentIndex].parentContacts?.findIndex(c => c.Id === parseInt(contactId));
+    if (contactIndex === -1 || contactIndex === undefined) {
+      throw new Error('Parent contact not found');
+    }
+
+    // If this is set as primary, make others non-primary
+    if (contactData.isPrimary) {
+      this.students[studentIndex].parentContacts.forEach(contact => {
+        if (contact.Id !== parseInt(contactId)) {
+          contact.isPrimary = false;
+        }
+      });
+    }
+
+    this.students[studentIndex].parentContacts[contactIndex] = {
+      ...this.students[studentIndex].parentContacts[contactIndex],
+      ...contactData
+    };
+
+    return this.students[studentIndex];
+  }
+
+  async deleteParentContact(studentId, contactId) {
+    await delay(200);
+    
+    const studentIndex = this.students.findIndex(s => s.Id === parseInt(studentId));
+    if (studentIndex === -1) {
+      throw new Error('Student not found');
+    }
+
+    const contactIndex = this.students[studentIndex].parentContacts?.findIndex(c => c.Id === parseInt(contactId));
+    if (contactIndex === -1 || contactIndex === undefined) {
+      throw new Error('Parent contact not found');
+    }
+
+    this.students[studentIndex].parentContacts.splice(contactIndex, 1);
+    
+    return this.students[studentIndex];
+  }
+
+  async getParentContacts(studentId) {
+    await delay(100);
+    
+    const student = this.students.find(s => s.Id === parseInt(studentId));
+    if (!student) {
+      throw new Error('Student not found');
+    }
+
+    return student.parentContacts || [];
   }
 // Report-specific data methods
   async getStudentSummaryForReport(studentId, startDate, endDate) {

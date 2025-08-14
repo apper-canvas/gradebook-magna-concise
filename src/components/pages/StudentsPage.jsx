@@ -278,7 +278,7 @@ useEffect(() => {
     }
   }, [searchTerm, students]);
 
-  const handleStudentSelect = (student) => {
+const handleStudentSelect = (student) => {
     setSelectedStudent(student);
   };
 
@@ -286,7 +286,7 @@ useEffect(() => {
     setSelectedStudent(null);
   };
 
-  const handleGradeAdd = async (studentId, gradeData) => {
+const handleGradeAdd = async (studentId, gradeData) => {
     try {
       const updatedStudent = await studentService.addGrade(studentId, gradeData);
       setStudents(prev => prev.map(s => s.Id === studentId ? updatedStudent : s));
@@ -294,7 +294,43 @@ useEffect(() => {
     } catch (err) {
       console.error("Failed to add grade:", err);
     }
-};
+  };
+
+  const handleParentContactAdd = async (studentId, contactData) => {
+    try {
+      const updatedStudent = await studentService.addParentContact(studentId, contactData);
+      setStudents(prev => prev.map(s => s.Id === studentId ? updatedStudent : s));
+      setSelectedStudent(updatedStudent);
+      toast.success("Parent contact added successfully");
+    } catch (err) {
+      toast.error("Failed to add parent contact");
+      console.error("Failed to add parent contact:", err);
+    }
+  };
+
+  const handleParentContactUpdate = async (studentId, contactId, contactData) => {
+    try {
+      const updatedStudent = await studentService.updateParentContact(studentId, contactId, contactData);
+      setStudents(prev => prev.map(s => s.Id === studentId ? updatedStudent : s));
+      setSelectedStudent(updatedStudent);
+      toast.success("Parent contact updated successfully");
+    } catch (err) {
+      toast.error("Failed to update parent contact");
+      console.error("Failed to update parent contact:", err);
+    }
+  };
+
+  const handleParentContactDelete = async (studentId, contactId) => {
+    try {
+      const updatedStudent = await studentService.deleteParentContact(studentId, contactId);
+      setStudents(prev => prev.map(s => s.Id === studentId ? updatedStudent : s));
+      setSelectedStudent(updatedStudent);
+      toast.success("Parent contact deleted successfully");
+    } catch (err) {
+      toast.error("Failed to delete parent contact");
+      console.error("Failed to delete parent contact:", err);
+    }
+  };
 
   const handleStudentToggle = (studentId) => {
     const newSelected = new Set(selectedStudents);
@@ -1215,11 +1251,14 @@ const getClassStats = () => {
             </motion.div>}
         </CardContent>
     </Card>
-    {/* Student Detail Modal */}
+{/* Student Detail Modal */}
     {selectedStudent && <StudentDetailPanel
         student={selectedStudent}
         onClose={handleCloseDetail}
-        onGradeAdd={handleGradeAdd} />}
+        onGradeAdd={handleGradeAdd}
+        onParentContactAdd={handleParentContactAdd}
+        onParentContactUpdate={handleParentContactUpdate}
+        onParentContactDelete={handleParentContactDelete} />}
 </motion.div>
   );
 };

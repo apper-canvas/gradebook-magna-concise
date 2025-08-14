@@ -9,6 +9,32 @@
     "gradeAverage": 92.3,
     "recentAssignmentScore": 95,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 1,
+        "firstName": "Robert",
+        "lastName": "Johnson",
+        "relationship": "Father",
+        "email": "robert.johnson@email.com",
+        "phone": "(555) 123-4567",
+        "workPhone": "(555) 123-4568",
+        "address": "123 Oak Street, Springfield, IL 62701",
+        "isPrimary": true,
+        "emergencyContact": true
+      },
+      {
+        "Id": 2,
+        "firstName": "Sarah",
+        "lastName": "Johnson",
+        "relationship": "Mother",
+        "email": "sarah.johnson@email.com",
+        "phone": "(555) 123-4569",
+        "workPhone": "",
+        "address": "123 Oak Street, Springfield, IL 62701",
+        "isPrimary": false,
+        "emergencyContact": true
+      }
+    ],
     "grades": [
       {
         "Id": 101,
@@ -56,7 +82,7 @@
         "category": "Participation"
       }
     ]
-  },
+},
   {
     "Id": 2,
     "firstName": "Michael",
@@ -67,6 +93,32 @@
     "gradeAverage": 87.6,
     "recentAssignmentScore": 82,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 3,
+        "firstName": "David",
+        "lastName": "Chen",
+        "relationship": "Father",
+        "email": "david.chen@email.com",
+        "phone": "(555) 234-5678",
+        "workPhone": "(555) 234-5679",
+        "address": "456 Maple Avenue, Springfield, IL 62702",
+        "isPrimary": true,
+        "emergencyContact": true
+      },
+      {
+        "Id": 4,
+        "firstName": "Lisa",
+        "lastName": "Chen",
+        "relationship": "Mother",
+        "email": "lisa.chen@email.com",
+        "phone": "(555) 234-5680",
+        "workPhone": "(555) 234-5681",
+        "address": "456 Maple Avenue, Springfield, IL 62702",
+        "isPrimary": false,
+        "emergencyContact": true
+      }
+    ],
     "grades": [
       {
         "Id": 201,
@@ -114,7 +166,7 @@
         "category": "Participation"
       }
     ]
-  },
+},
   {
     "Id": 3,
     "firstName": "Sarah",
@@ -125,6 +177,20 @@
     "gradeAverage": 94.7,
     "recentAssignmentScore": 98,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 5,
+        "firstName": "Mark",
+        "lastName": "Williams",
+        "relationship": "Father",
+        "email": "mark.williams@email.com",
+        "phone": "(555) 345-6789",
+        "workPhone": "(555) 345-6790",
+        "address": "789 Pine Road, Springfield, IL 62703",
+        "isPrimary": true,
+        "emergencyContact": true
+      }
+    ],
     "grades": [
       {
         "Id": 301,
@@ -172,7 +238,7 @@
         "category": "Participation"
       }
     ]
-  },
+},
   {
     "Id": 4,
     "firstName": "David",
@@ -183,6 +249,32 @@
     "gradeAverage": 78.4,
     "recentAssignmentScore": 75,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 6,
+        "firstName": "Carlos",
+        "lastName": "Rodriguez",
+        "relationship": "Father",
+        "email": "carlos.rodriguez@email.com",
+        "phone": "(555) 456-7890",
+        "workPhone": "",
+        "address": "321 Elm Street, Springfield, IL 62704",
+        "isPrimary": true,
+        "emergencyContact": true
+      },
+      {
+        "Id": 7,
+        "firstName": "Maria",
+        "lastName": "Rodriguez",
+        "relationship": "Mother",
+        "email": "maria.rodriguez@email.com",
+        "phone": "(555) 456-7891",
+        "workPhone": "(555) 456-7892",
+        "address": "321 Elm Street, Springfield, IL 62704",
+        "isPrimary": false,
+        "emergencyContact": false
+      }
+    ],
     "grades": [
       {
         "Id": 401,
@@ -230,7 +322,7 @@
         "category": "Participation"
       }
     ]
-  },
+},
   {
     "Id": 5,
     "firstName": "Ashley",
@@ -241,6 +333,20 @@
     "gradeAverage": 91.2,
     "recentAssignmentScore": 89,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 8,
+        "firstName": "Jennifer",
+        "lastName": "Davis",
+        "relationship": "Mother",
+        "email": "jennifer.davis@email.com",
+        "phone": "(555) 567-8901",
+        "workPhone": "(555) 567-8902",
+        "address": "654 Cedar Lane, Springfield, IL 62705",
+        "isPrimary": true,
+        "emergencyContact": true
+      }
+    ],
     "grades": [
       {
         "Id": 501,
@@ -288,7 +394,7 @@
         "category": "Participation"
       }
     ]
-  },
+},
   {
     "Id": 6,
     "firstName": "James",
@@ -299,6 +405,32 @@
     "gradeAverage": 85.9,
     "recentAssignmentScore": 84,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 9,
+        "firstName": "Michael",
+        "lastName": "Thompson",
+        "relationship": "Father",
+        "email": "michael.thompson@email.com",
+        "phone": "(555) 678-9012",
+        "workPhone": "(555) 678-9013",
+        "address": "987 Birch Avenue, Springfield, IL 62706",
+        "isPrimary": true,
+        "emergencyContact": true
+      },
+      {
+        "Id": 10,
+        "firstName": "Amanda",
+        "lastName": "Thompson",
+        "relationship": "Mother",
+        "email": "amanda.thompson@email.com",
+        "phone": "(555) 678-9014",
+        "workPhone": "",
+        "address": "987 Birch Avenue, Springfield, IL 62706",
+        "isPrimary": false,
+        "emergencyContact": true
+      }
+    ],
     "grades": [
       {
         "Id": 601,
@@ -346,7 +478,7 @@
         "category": "Participation"
       }
     ]
-  },
+},
   {
     "Id": 7,
     "firstName": "Jessica",
@@ -357,6 +489,32 @@
     "gradeAverage": 88.3,
     "recentAssignmentScore": 91,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 11,
+        "firstName": "Juan",
+        "lastName": "Martinez",
+        "relationship": "Father",
+        "email": "juan.martinez@email.com",
+        "phone": "(555) 789-0123",
+        "workPhone": "(555) 789-0124",
+        "address": "147 Willow Drive, Springfield, IL 62707",
+        "isPrimary": true,
+        "emergencyContact": true
+      },
+      {
+        "Id": 12,
+        "firstName": "Rosa",
+        "lastName": "Martinez",
+        "relationship": "Mother",
+        "email": "rosa.martinez@email.com",
+        "phone": "(555) 789-0125",
+        "workPhone": "(555) 789-0126",
+        "address": "147 Willow Drive, Springfield, IL 62707",
+        "isPrimary": false,
+        "emergencyContact": true
+      }
+    ],
     "grades": [
       {
         "Id": 701,
@@ -404,7 +562,7 @@
         "category": "Participation"
       }
     ]
-  },
+},
   {
     "Id": 8,
     "firstName": "Ryan",
@@ -415,6 +573,20 @@
     "gradeAverage": 90.1,
     "recentAssignmentScore": 87,
     "notes": "",
+    "parentContacts": [
+      {
+        "Id": 13,
+        "firstName": "Kevin",
+        "lastName": "Anderson",
+        "relationship": "Father",
+        "email": "kevin.anderson@email.com",
+        "phone": "(555) 890-1234",
+        "workPhone": "(555) 890-1235",
+        "address": "258 Spruce Court, Springfield, IL 62708",
+        "isPrimary": true,
+        "emergencyContact": true
+      }
+    ],
     "grades": [
       {
         "Id": 801,
