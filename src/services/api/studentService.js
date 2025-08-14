@@ -1,4 +1,4 @@
-import studentsData from "@/services/mockData/students.json";
+import studentsData from "@/services/mockData/students_updated.json";
 
 // Category weights configuration (percentages that must sum to 100)
 const CATEGORY_WEIGHTS = {
