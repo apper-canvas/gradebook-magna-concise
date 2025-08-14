@@ -318,426 +318,9 @@ useEffect(() => {
 </div>
     </div>
 </div>
+</div>
     );
 };
-
-                {/* Behavior Tab Content */}
-                {activeTab === "behavior" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Behavior Timeline</h3>
-                        <div className="flex items-center space-x-2">
-                          <select
-                            value={behaviorFilter}
-                            onChange={(e) => setBehaviorFilter(e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          >
-                            <option value="all">All Incidents</option>
-                            <option value="disciplinary">Disciplinary Only</option>
-                            <option value="positive">Positive Only</option>
-                          </select>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => setShowBehaviorForm(true)}
-                        className="gap-2"
-                      >
-                        <ApperIcon name="Plus" size={16} />
-                        Log Incident
-                      </Button>
-                    </div>
-
-                    {loadingBehavior ? (
-                      <Loading message="Loading behavior incidents..." />
-                    ) : filteredBehaviorIncidents.length === 0 ? (
-                      <Card className="p-8 text-center">
-                        <ApperIcon name="FileText" size={48} className="mx-auto text-gray-300 mb-4" />
-                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Behavior Incidents</h3>
-                        <p className="text-gray-500">
-                          {behaviorFilter === 'all' ? 'No incidents recorded yet.' : `No ${behaviorFilter} incidents recorded.`}
-                        </p>
-                      </Card>
-                    ) : (
-                      <div className="space-y-4">
-                        {filteredBehaviorIncidents.map((incident) => (
-                          <Card key={incident.Id} className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-3 mb-2">
-                                  <Badge 
-                                    variant={incident.type === 'disciplinary' ? 'destructive' : 'success'}
-                                    className="text-xs"
-                                  >
-                                    {incident.type === 'disciplinary' ? incident.category : 'Positive'}
-                                  </Badge>
-                                  <Badge 
-                                    className={`text-xs ${getSeverityColor(incident.severity)}`}
-                                  >
-                                    {incident.severity}
-                                  </Badge>
-                                  <span className="text-sm text-gray-500">
-                                    {format(new Date(incident.timestamp), 'MMM dd, yyyy h:mm a')}
-                                  </span>
-                                </div>
-                                <p className="text-gray-800 mb-2">{incident.description}</p>
-                                {incident.actionTaken && (
-                                  <div className="bg-blue-50 p-3 rounded-lg">
-                                    <p className="text-sm text-blue-800">
-                                      <strong>Action Taken:</strong> {incident.actionTaken}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex items-center space-x-2 ml-4">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleEditBehaviorIncident(incident)}
-                                >
-                                  <ApperIcon name="Edit2" size={14} />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDeleteBehaviorIncident(incident.Id)}
-                                  className="text-red-600 hover:text-red-700"
-                                >
-                                  <ApperIcon name="Trash2" size={14} />
-                                </Button>
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Behavior Incident Form Modal */}
-                    {showBehaviorForm && (
-                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                        <Card className="w-full max-w-md">
-                          <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                              {editingBehavior ? 'Edit Incident' : 'Log New Incident'}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setShowBehaviorForm(false);
-                                  setEditingBehavior(null);
-                                  setNewBehaviorIncident({
-                                    type: 'disciplinary',
-                                    category: 'Disruption',
-                                    severity: 'Medium',
-                                    description: '',
-                                    actionTaken: ''
-                                  });
-                                }}
-                              >
-                                <ApperIcon name="X" size={16} />
-                              </Button>
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <FormField label="Type">
-                              <select
-                                value={newBehaviorIncident.type}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, type: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              >
-                                <option value="disciplinary">Disciplinary</option>
-                                <option value="positive">Positive</option>
-                              </select>
-                            </FormField>
-
-                            {newBehaviorIncident.type === 'disciplinary' && (
-                              <FormField label="Category">
-                                <select
-                                  value={newBehaviorIncident.category}
-                                  onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, category: e.target.value }))}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                >
-                                  <option value="Disruption">Disruption</option>
-                                  <option value="Tardiness">Tardiness</option>
-                                </select>
-                              </FormField>
-                            )}
-
-                            <FormField label="Severity">
-                              <select
-                                value={newBehaviorIncident.severity}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, severity: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              >
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
-                              </select>
-                            </FormField>
-
-                            <FormField label="Description" error="">
-                              <textarea
-                                value={newBehaviorIncident.description}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, description: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
-                                rows="3"
-                                placeholder="Describe the incident..."
-                              />
-                            </FormField>
-
-                            <FormField label="Action Taken (Optional)">
-                              <textarea
-                                value={newBehaviorIncident.actionTaken}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, actionTaken: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
-                                rows="2"
-                                placeholder="What action was taken..."
-                              />
-                            </FormField>
-
-                            <div className="flex space-x-3 pt-4">
-                              <Button
-                                onClick={handleBehaviorFormSubmit}
-                                className="flex-1"
-                              >
-                                {editingBehavior ? 'Update Incident' : 'Log Incident'}
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => {
-                                  setShowBehaviorForm(false);
-                                  setEditingBehavior(null);
-                                  setNewBehaviorIncident({
-                                    type: 'disciplinary',
-                                    category: 'Disruption',
-                                    severity: 'Medium',
-                                    description: '',
-                                    actionTaken: ''
-                                  });
-                                }}
-                                className="flex-1"
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    )}
-)}
-                  </div>
-                )}
-                
-                {/* Behavior Tab Content */}
-                {activeTab === "behavior" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Behavior Timeline</h3>
-                        <div className="flex items-center space-x-2">
-                          <select
-                            value={behaviorFilter}
-                            onChange={(e) => setBehaviorFilter(e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          >
-                            <option value="all">All Incidents</option>
-                            <option value="disciplinary">Disciplinary Only</option>
-                            <option value="positive">Positive Only</option>
-                          </select>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => setShowBehaviorForm(true)}
-                        className="gap-2"
-                      >
-                        <ApperIcon name="Plus" size={16} />
-                        Log Incident
-                      </Button>
-                    </div>
-
-                    {loadingBehavior ? (
-                      <Loading message="Loading behavior incidents..." />
-                    ) : filteredBehaviorIncidents.length === 0 ? (
-                      <Card className="p-8 text-center">
-                        <ApperIcon name="FileText" size={48} className="mx-auto text-gray-300 mb-4" />
-                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Behavior Incidents</h3>
-                        <p className="text-gray-500">
-                          {behaviorFilter === 'all' ? 'No incidents recorded yet.' : `No ${behaviorFilter} incidents recorded.`}
-                        </p>
-                      </Card>
-                    ) : (
-                      <div className="space-y-4">
-                        {filteredBehaviorIncidents.map((incident) => (
-                          <Card key={incident.Id} className="p-4">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-3 mb-2">
-                                  <Badge 
-                                    variant={incident.type === 'disciplinary' ? 'destructive' : 'success'}
-                                    className="text-xs"
-                                  >
-                                    {incident.type === 'disciplinary' ? incident.category : 'Positive'}
-                                  </Badge>
-                                  <Badge 
-                                    className={`text-xs ${getSeverityColor(incident.severity)}`}
-                                  >
-                                    {incident.severity}
-                                  </Badge>
-                                  <span className="text-sm text-gray-500">
-                                    {format(new Date(incident.timestamp), 'MMM dd, yyyy h:mm a')}
-                                  </span>
-                                </div>
-                                <p className="text-gray-800 mb-2">{incident.description}</p>
-                                {incident.actionTaken && (
-                                  <div className="bg-blue-50 p-3 rounded-lg">
-                                    <p className="text-sm text-blue-800">
-                                      <strong>Action Taken:</strong> {incident.actionTaken}
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex items-center space-x-2 ml-4">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleEditBehaviorIncident(incident)}
-                                >
-                                  <ApperIcon name="Edit2" size={14} />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDeleteBehaviorIncident(incident.Id)}
-                                  className="text-red-600 hover:text-red-700"
-                                >
-                                  <ApperIcon name="Trash2" size={14} />
-                                </Button>
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Behavior Incident Form Modal */}
-                    {showBehaviorForm && (
-                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                        <Card className="w-full max-w-md">
-                          <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                              {editingBehavior ? 'Edit Incident' : 'Log New Incident'}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setShowBehaviorForm(false);
-                                  setEditingBehavior(null);
-                                  setNewBehaviorIncident({
-                                    type: 'disciplinary',
-                                    category: 'Disruption',
-                                    severity: 'Medium',
-                                    description: '',
-                                    actionTaken: ''
-                                  });
-                                }}
-                              >
-                                <ApperIcon name="X" size={16} />
-                              </Button>
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <FormField label="Type">
-                              <select
-                                value={newBehaviorIncident.type}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, type: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              >
-                                <option value="disciplinary">Disciplinary</option>
-                                <option value="positive">Positive</option>
-                              </select>
-                            </FormField>
-
-                            {newBehaviorIncident.type === 'disciplinary' && (
-                              <FormField label="Category">
-                                <select
-                                  value={newBehaviorIncident.category}
-                                  onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, category: e.target.value }))}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                >
-                                  <option value="Disruption">Disruption</option>
-                                  <option value="Tardiness">Tardiness</option>
-                                </select>
-                              </FormField>
-                            )}
-
-                            <FormField label="Severity">
-                              <select
-                                value={newBehaviorIncident.severity}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, severity: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              >
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
-                              </select>
-                            </FormField>
-
-                            <FormField label="Description" error="">
-                              <textarea
-                                value={newBehaviorIncident.description}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, description: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
-                                rows="3"
-                                placeholder="Describe the incident..."
-                              />
-                            </FormField>
-
-                            <FormField label="Action Taken (Optional)">
-                              <textarea
-                                value={newBehaviorIncident.actionTaken}
-                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, actionTaken: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
-                                rows="2"
-                                placeholder="What action was taken..."
-                              />
-                            </FormField>
-
-                            <div className="flex space-x-3 pt-4">
-                              <Button
-                                onClick={handleBehaviorFormSubmit}
-                                className="flex-1"
-                              >
-                                {editingBehavior ? 'Update Incident' : 'Log Incident'}
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => {
-                                  setShowBehaviorForm(false);
-                                  setEditingBehavior(null);
-                                  setNewBehaviorIncident({
-                                    type: 'disciplinary',
-                                    category: 'Disruption',
-                                    severity: 'Medium',
-                                    description: '',
-                                    actionTaken: ''
-                                  });
-                                }}
-                                className="flex-1"
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    )}
-                  </div>
-                )}
-            </div>
-        </motion.div>
-    </motion.div>
-    </AnimatePresence>
-    );
   const handleAddGrade = () => {
     if (!newGrade.assignmentName.trim() || !newGrade.score) {
       toast.error("Please fill in all required fields");
@@ -1179,9 +762,214 @@ const getGradeVariant = (percentage) => {
                   <div className="space-y-6">
                     <h3 className="text-lg font-semibold text-gray-900">Attendance Calendar</h3>
                     {renderCalendar()}
-                  </div>
+</div>
                 )}
                 
+                {/* Behavior Tab Content */}
+                {activeTab === "behavior" && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Behavior Timeline</h3>
+                        <div className="flex items-center space-x-2">
+                          <select
+                            value={behaviorFilter}
+                            onChange={(e) => setBehaviorFilter(e.target.value)}
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          >
+                            <option value="all">All Incidents</option>
+                            <option value="disciplinary">Disciplinary Only</option>
+                            <option value="positive">Positive Only</option>
+                          </select>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => setShowBehaviorForm(true)}
+                        className="gap-2"
+                      >
+                        <ApperIcon name="Plus" size={16} />
+                        Log Incident
+                      </Button>
+                    </div>
+
+                    {loadingBehavior ? (
+                      <Loading message="Loading behavior incidents..." />
+                    ) : filteredBehaviorIncidents.length === 0 ? (
+                      <Card className="p-8 text-center">
+                        <ApperIcon name="FileText" size={48} className="mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Behavior Incidents</h3>
+                        <p className="text-gray-500">
+                          {behaviorFilter === 'all' ? 'No incidents recorded yet.' : `No ${behaviorFilter} incidents recorded.`}
+                        </p>
+                      </Card>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredBehaviorIncidents.map((incident) => (
+                          <Card key={incident.Id} className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  <Badge 
+                                    variant={incident.type === 'disciplinary' ? 'destructive' : 'success'}
+                                    className="text-xs"
+                                  >
+                                    {incident.type === 'disciplinary' ? incident.category : 'Positive'}
+                                  </Badge>
+                                  <Badge 
+                                    className={`text-xs ${getSeverityColor(incident.severity)}`}
+                                  >
+                                    {incident.severity}
+                                  </Badge>
+                                  <span className="text-sm text-gray-500">
+                                    {format(new Date(incident.timestamp), 'MMM dd, yyyy h:mm a')}
+                                  </span>
+                                </div>
+                                <p className="text-gray-800 mb-2">{incident.description}</p>
+                                {incident.actionTaken && (
+                                  <div className="bg-blue-50 p-3 rounded-lg">
+                                    <p className="text-sm text-blue-800">
+                                      <strong>Action Taken:</strong> {incident.actionTaken}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2 ml-4">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditBehaviorIncident(incident)}
+                                >
+                                  <ApperIcon name="Edit2" size={14} />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteBehaviorIncident(incident.Id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <ApperIcon name="Trash2" size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Behavior Incident Form Modal */}
+                    {showBehaviorForm && (
+                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        <Card className="w-full max-w-md">
+                          <CardHeader>
+                            <CardTitle className="flex items-center justify-between">
+                              {editingBehavior ? 'Edit Incident' : 'Log New Incident'}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setShowBehaviorForm(false);
+                                  setEditingBehavior(null);
+                                  setNewBehaviorIncident({
+                                    type: 'disciplinary',
+                                    category: 'Disruption',
+                                    severity: 'Medium',
+                                    description: '',
+                                    actionTaken: ''
+                                  });
+                                }}
+                              >
+                                <ApperIcon name="X" size={16} />
+                              </Button>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <FormField label="Type">
+                              <select
+                                value={newBehaviorIncident.type}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, type: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                <option value="disciplinary">Disciplinary</option>
+                                <option value="positive">Positive</option>
+                              </select>
+                            </FormField>
+
+                            {newBehaviorIncident.type === 'disciplinary' && (
+                              <FormField label="Category">
+                                <select
+                                  value={newBehaviorIncident.category}
+                                  onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, category: e.target.value }))}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                >
+                                  <option value="Disruption">Disruption</option>
+                                  <option value="Tardiness">Tardiness</option>
+                                </select>
+                              </FormField>
+                            )}
+
+                            <FormField label="Severity">
+                              <select
+                                value={newBehaviorIncident.severity}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, severity: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                              </select>
+                            </FormField>
+
+                            <FormField label="Description" error="">
+                              <textarea
+                                value={newBehaviorIncident.description}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, description: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                                rows="3"
+                                placeholder="Describe the incident..."
+                              />
+                            </FormField>
+
+                            <FormField label="Action Taken (Optional)">
+                              <textarea
+                                value={newBehaviorIncident.actionTaken}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, actionTaken: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                                rows="2"
+                                placeholder="What action was taken..."
+                              />
+                            </FormField>
+
+                            <div className="flex space-x-3 pt-4">
+                              <Button
+                                onClick={handleBehaviorFormSubmit}
+                                className="flex-1"
+                              >
+                                {editingBehavior ? 'Update Incident' : 'Log Incident'}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  setShowBehaviorForm(false);
+                                  setEditingBehavior(null);
+                                  setNewBehaviorIncident({
+                                    type: 'disciplinary',
+                                    category: 'Disruption',
+                                    severity: 'Medium',
+                                    description: '',
+                                    actionTaken: ''
+                                  });
+                                }}
+                                className="flex-1"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* Parent Contacts Tab Content */}
                 {activeTab === "contacts" && (
                   <div className="space-y-6">
@@ -1416,10 +1204,10 @@ const getGradeVariant = (percentage) => {
                       placeholder="Add notes about this student..."
                     />
                   </div>
-                )}
+)}
             </div>
         </motion.div>
     </motion.div>
-</AnimatePresence>
-);
-};
+    </AnimatePresence>
+  );
+}
