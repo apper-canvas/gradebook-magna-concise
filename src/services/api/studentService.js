@@ -259,6 +259,17 @@ async getAttendanceForDate(date) {
 return { ...student };
   }
 
+  async updateStudentNotes(studentId, notes) {
+    await delay(200);
+    const studentIndex = this.students.findIndex(s => s.Id === parseInt(studentId));
+    if (studentIndex === -1) {
+      throw new Error("Student not found");
+    }
+
+    this.students[studentIndex].notes = notes || "";
+    return { ...this.students[studentIndex] };
+  }
+
   async addBulkGrades(gradesArray) {
     await delay(500);
     

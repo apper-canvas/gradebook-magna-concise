@@ -13,15 +13,16 @@ import Card, { CardContent, CardHeader, CardTitle } from "@/components/atoms/Car
 import Input from "@/components/atoms/Input";
 import StudentGradeTrendsChart from "@/components/molecules/StudentGradeTrendsChart";
 const StudentDetailPanel = ({ student, onClose, onGradeAdd }) => {
-  const [showAddForm, setShowAddForm] = useState(false);
-const [newGrade, setNewGrade] = useState({
+const [showAddForm, setShowAddForm] = useState(false);
+  const [notes, setNotes] = useState(student.notes || "");
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [newGrade, setNewGrade] = useState({
     assignmentName: "",
     score: "",
     maxScore: "100",
     date: new Date().toISOString().split("T")[0],
     category: "Test"
   });
-
   const handleAddGrade = () => {
     if (!newGrade.assignmentName.trim() || !newGrade.score) {
       toast.error("Please fill in all required fields");
@@ -55,6 +56,20 @@ const [newGrade, setNewGrade] = useState({
     setShowAddForm(false);
     toast.success(`Grade added for ${student.firstName} ${student.lastName}`);
   };
+const handleNotesUpdate = async () => {
+    if (isSavingNotes) return;
+    
+    setIsSavingNotes(true);
+    try {
+      await studentService.updateStudentNotes(student.Id, notes);
+      toast.success(`Notes updated for ${student.firstName} ${student.lastName}`);
+    } catch (error) {
+      toast.error("Failed to update notes");
+      console.error("Error updating notes:", error);
+    } finally {
+      setIsSavingNotes(false);
+    }
+  };
 
   const getGradeVariant = (percentage) => {
     if (percentage >= 90) return "success";
@@ -62,7 +77,6 @@ const [newGrade, setNewGrade] = useState({
     if (percentage >= 70) return "warning";
     return "error";
   };
-
   return (
     <AnimatePresence>
       <motion.div
@@ -175,11 +189,51 @@ const [newGrade, setNewGrade] = useState({
 </Card>
 
             {/* Grade Trends Chart */}
-            <div className="mb-8">
+<div className="mb-8">
               <StudentGradeTrendsChart student={student} />
             </div>
 
-{/* Add Grade Section */}
+            {/* Personal Notes Section */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Personal Notes & Comments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <Label htmlFor="student-notes" className="text-sm font-semibold text-slate-700">
+                    Add personal observations, behavior notes, or comments about {student.firstName}
+                  </Label>
+                  <div className="relative">
+                    <textarea
+                      id="student-notes"
+                      placeholder="Enter your notes and observations about this student..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      onBlur={handleNotesUpdate}
+                      className="flex w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50 min-h-[120px] resize-y transition-all duration-200"
+                      disabled={isSavingNotes}
+                    />
+                    {isSavingNotes && (
+                      <div className="absolute top-3 right-3">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"></div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>Notes are automatically saved when you click outside the text area</span>
+                    <span>{notes.length} characters</span>
+                  </div>
+                  {notes.trim() && (
+                    <div className="flex items-center gap-2 text-sm text-success-600 font-medium">
+                      <ApperIcon name="CheckCircle" className="h-4 w-4" />
+                      Notes saved successfully
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Add Grade Section */}
             <Card className="mb-8">
               <CardHeader>
                 <div className="flex items-center justify-between">

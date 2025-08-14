@@ -8,6 +8,7 @@
     "attendancePercentage": 95.5,
     "gradeAverage": 92.3,
     "recentAssignmentScore": 95,
+    "notes": "",
     "grades": [
       {
         "Id": 101,
@@ -17,7 +18,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 102,
         "studentId": "1",
@@ -65,6 +66,7 @@
     "attendancePercentage": 88.2,
     "gradeAverage": 87.6,
     "recentAssignmentScore": 82,
+    "notes": "",
     "grades": [
       {
         "Id": 201,
@@ -74,7 +76,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 202,
         "studentId": "2",
@@ -122,6 +124,7 @@
     "attendancePercentage": 92.8,
     "gradeAverage": 94.7,
     "recentAssignmentScore": 98,
+    "notes": "",
     "grades": [
       {
         "Id": 301,
@@ -131,7 +134,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 302,
         "studentId": "3",
@@ -179,6 +182,7 @@
     "attendancePercentage": 85.3,
     "gradeAverage": 78.4,
     "recentAssignmentScore": 75,
+    "notes": "",
     "grades": [
       {
         "Id": 401,
@@ -188,7 +192,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 402,
         "studentId": "4",
@@ -236,6 +240,7 @@
     "attendancePercentage": 97.1,
     "gradeAverage": 91.2,
     "recentAssignmentScore": 89,
+    "notes": "",
     "grades": [
       {
         "Id": 501,
@@ -245,7 +250,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 502,
         "studentId": "5",
@@ -293,6 +298,7 @@
     "attendancePercentage": 91.7,
     "gradeAverage": 85.9,
     "recentAssignmentScore": 84,
+    "notes": "",
     "grades": [
       {
         "Id": 601,
@@ -302,7 +308,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 602,
         "studentId": "6",
@@ -350,6 +356,7 @@
     "attendancePercentage": 89.4,
     "gradeAverage": 88.3,
     "recentAssignmentScore": 91,
+    "notes": "",
     "grades": [
       {
         "Id": 701,
@@ -359,7 +366,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 702,
         "studentId": "7",
@@ -407,6 +414,7 @@
     "attendancePercentage": 93.6,
     "gradeAverage": 90.1,
     "recentAssignmentScore": 87,
+    "notes": "",
     "grades": [
       {
         "Id": 801,
@@ -416,7 +424,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-},
+      },
       {
         "Id": 802,
         "studentId": "8",
