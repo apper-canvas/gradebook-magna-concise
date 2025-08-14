@@ -1,0 +1,54 @@
+[
+  {
+    "Id": 1,
+    "name": "Algebra II",
+    "subject": "Mathematics",
+    "period": "1st Period",
+    "startTime": "08:00",
+    "endTime": "08:50",
+    "room": "Room 201",
+    "enrolledCount": 24,
+    "isActive": true,
+    "color": "primary",
+    "createdAt": "2024-01-15T08:00:00Z"
+  },
+  {
+    "Id": 2,
+    "name": "World History",
+    "subject": "Social Studies",
+    "period": "3rd Period", 
+    "startTime": "10:00",
+    "endTime": "10:50",
+    "room": "Room 105",
+    "enrolledCount": 28,
+    "isActive": false,
+    "color": "accent",
+    "createdAt": "2024-01-15T08:00:00Z"
+  },
+  {
+    "Id": 3,
+    "name": "Biology",
+    "subject": "Science",
+    "period": "5th Period",
+    "startTime": "13:00", 
+    "endTime": "13:50",
+    "room": "Lab 302",
+    "enrolledCount": 22,
+    "isActive": false,
+    "color": "success",
+    "createdAt": "2024-01-15T08:00:00Z"
+  },
+  {
+    "Id": 4,
+    "name": "English Literature",
+    "subject": "English",
+    "period": "7th Period",
+    "startTime": "15:00",
+    "endTime": "15:50", 
+    "room": "Room 118",
+    "enrolledCount": 26,
+    "isActive": false,
+    "color": "warning",
+    "createdAt": "2024-01-15T08:00:00Z"
+  }
+]

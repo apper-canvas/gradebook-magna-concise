@@ -15,6 +15,7 @@ class StudentService {
   constructor() {
 this.students = [...studentsData];
     this.categoryWeights = CATEGORY_WEIGHTS;
+    this.currentClassId = 1; // Default to first class
     // Initialize attendance tracking
     this.attendance = new Map(); // Map<string, Map<number, string>> - date -> studentId -> status
   }
@@ -108,12 +109,24 @@ this.students = [...studentsData];
     return breakdown;
   }
 
-  async getAll() {
+async getAll(classId = null) {
     await delay(300);
+    const targetClassId = classId || this.currentClassId;
     return this.students.map(student => ({
       ...student,
-      grades: [...student.grades]
+      grades: [...student.grades.filter(grade => 
+        grade.classId === targetClassId || !grade.classId // Include grades without classId for backward compatibility
+      )]
     }));
+  }
+
+  async getCurrentClass() {
+    return this.currentClassId;
+  }
+
+  async setCurrentClass(classId) {
+    this.currentClassId = classId;
+    return this.currentClassId;
   }
 
   async getById(id) {
@@ -299,4 +312,5 @@ return { ...student };
     return results;
   }
 }
+
 export const studentService = new StudentService();
