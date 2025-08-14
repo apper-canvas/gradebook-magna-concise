@@ -13,15 +13,14 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 class StudentService {
   constructor() {
-this.students = [...studentsData];
+    this.students = [...studentsData];
     this.categoryWeights = CATEGORY_WEIGHTS;
     this.currentClassId = 1; // Default to first class
     // Initialize attendance tracking
     this.attendance = new Map(); // Map<string, Map<number, string>> - date -> studentId -> status
   }
-
-  // Get category weights configuration
-getCategoryWeights() {
+// Get category weights configuration
+  getCategoryWeights() {
     return { ...this.categoryWeights };
   }
 
@@ -243,9 +242,9 @@ async getAttendanceForDate(date) {
     }
 
     const student = this.students[studentIndex];
-    student.grades = student.grades.filter(g => g.Id !== parseInt(gradeId));
+student.grades = student.grades.filter(g => g.Id !== parseInt(gradeId));
 
-// Recalculate weighted grade average
+    // Recalculate weighted grade average
     if (student.grades.length > 0) {
       student.gradeAverage = this.calculateWeightedGrade(student.grades);
 
@@ -254,11 +253,10 @@ async getAttendanceForDate(date) {
       student.recentAssignmentScore = (mostRecentGrade.score / mostRecentGrade.maxScore) * 100;
     } else {
       student.gradeAverage = 0;
-      student.recentAssignmentScore = 0;
+student.recentAssignmentScore = 0;
     }
-return { ...student };
+    return { ...student };
   }
-
   async updateStudentNotes(studentId, notes) {
     await delay(200);
     const studentIndex = this.students.findIndex(s => s.Id === parseInt(studentId));
@@ -322,11 +320,10 @@ return { ...student };
 
     if (errors.length > 0) {
       throw new Error(`Bulk grade operation completed with errors: ${errors.join('; ')}`);
-    }
+}
 
-return results;
+    return results;
   }
-
   // Get grade trends data for charting
   getGradeTrends(studentId) {
     const student = this.students.find(s => s.Id === parseInt(studentId));
@@ -349,11 +346,9 @@ return results;
         maxScore: grade.maxScore,
         percentage: Math.round(percentage * 10) / 10,
         runningAverage: Math.round(runningAverage * 10) / 10
-      };
+};
     });
-});
   }
-
   // Class assignment methods
   async assignStudentsToClass(studentIds, classId) {
     await delay(500); // Simulate API call
