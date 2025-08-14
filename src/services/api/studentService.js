@@ -344,4 +344,3 @@ return results;
 }
 
 export const studentService = new StudentService();
-export const studentService = new StudentService();
