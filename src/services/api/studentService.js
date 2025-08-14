@@ -397,15 +397,7 @@ async getStudentAttendanceHistory(studentId) {
 
       student.behaviorIncidents.splice(index, 1);
       return true;
-    }
-    
-    // Add running percentage calculation
-// Add running percentage calculation
-    stats.runningPercentage = stats.totalDays > 0 ?
-      Math.round(((stats.presentDays / stats.totalDays) * 100) * 10) / 10 : 95;
-    
-    return { history, stats };
-  }
+}
   async updateAttendance(studentId, attendancePercentage) {
     await delay(200);
     const studentIndex = this.students.findIndex(s => s.Id === parseInt(studentId));

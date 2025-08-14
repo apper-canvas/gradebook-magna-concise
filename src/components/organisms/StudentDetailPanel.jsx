@@ -319,9 +319,216 @@ useEffect(() => {
     </div>
 </div>
     );
-  };
+};
 
-  {/* Behavior Tab Content */}
+                {/* Behavior Tab Content */}
+                {activeTab === "behavior" && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <h3 className="text-lg font-semibold text-gray-900">Behavior Timeline</h3>
+                        <div className="flex items-center space-x-2">
+                          <select
+                            value={behaviorFilter}
+                            onChange={(e) => setBehaviorFilter(e.target.value)}
+                            className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          >
+                            <option value="all">All Incidents</option>
+                            <option value="disciplinary">Disciplinary Only</option>
+                            <option value="positive">Positive Only</option>
+                          </select>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => setShowBehaviorForm(true)}
+                        className="gap-2"
+                      >
+                        <ApperIcon name="Plus" size={16} />
+                        Log Incident
+                      </Button>
+                    </div>
+
+                    {loadingBehavior ? (
+                      <Loading message="Loading behavior incidents..." />
+                    ) : filteredBehaviorIncidents.length === 0 ? (
+                      <Card className="p-8 text-center">
+                        <ApperIcon name="FileText" size={48} className="mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-lg font-medium text-gray-600 mb-2">No Behavior Incidents</h3>
+                        <p className="text-gray-500">
+                          {behaviorFilter === 'all' ? 'No incidents recorded yet.' : `No ${behaviorFilter} incidents recorded.`}
+                        </p>
+                      </Card>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredBehaviorIncidents.map((incident) => (
+                          <Card key={incident.Id} className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  <Badge 
+                                    variant={incident.type === 'disciplinary' ? 'destructive' : 'success'}
+                                    className="text-xs"
+                                  >
+                                    {incident.type === 'disciplinary' ? incident.category : 'Positive'}
+                                  </Badge>
+                                  <Badge 
+                                    className={`text-xs ${getSeverityColor(incident.severity)}`}
+                                  >
+                                    {incident.severity}
+                                  </Badge>
+                                  <span className="text-sm text-gray-500">
+                                    {format(new Date(incident.timestamp), 'MMM dd, yyyy h:mm a')}
+                                  </span>
+                                </div>
+                                <p className="text-gray-800 mb-2">{incident.description}</p>
+                                {incident.actionTaken && (
+                                  <div className="bg-blue-50 p-3 rounded-lg">
+                                    <p className="text-sm text-blue-800">
+                                      <strong>Action Taken:</strong> {incident.actionTaken}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center space-x-2 ml-4">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditBehaviorIncident(incident)}
+                                >
+                                  <ApperIcon name="Edit2" size={14} />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteBehaviorIncident(incident.Id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <ApperIcon name="Trash2" size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Behavior Incident Form Modal */}
+                    {showBehaviorForm && (
+                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        <Card className="w-full max-w-md">
+                          <CardHeader>
+                            <CardTitle className="flex items-center justify-between">
+                              {editingBehavior ? 'Edit Incident' : 'Log New Incident'}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setShowBehaviorForm(false);
+                                  setEditingBehavior(null);
+                                  setNewBehaviorIncident({
+                                    type: 'disciplinary',
+                                    category: 'Disruption',
+                                    severity: 'Medium',
+                                    description: '',
+                                    actionTaken: ''
+                                  });
+                                }}
+                              >
+                                <ApperIcon name="X" size={16} />
+                              </Button>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <FormField label="Type">
+                              <select
+                                value={newBehaviorIncident.type}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, type: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                <option value="disciplinary">Disciplinary</option>
+                                <option value="positive">Positive</option>
+                              </select>
+                            </FormField>
+
+                            {newBehaviorIncident.type === 'disciplinary' && (
+                              <FormField label="Category">
+                                <select
+                                  value={newBehaviorIncident.category}
+                                  onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, category: e.target.value }))}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                >
+                                  <option value="Disruption">Disruption</option>
+                                  <option value="Tardiness">Tardiness</option>
+                                </select>
+                              </FormField>
+                            )}
+
+                            <FormField label="Severity">
+                              <select
+                                value={newBehaviorIncident.severity}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, severity: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                              </select>
+                            </FormField>
+
+                            <FormField label="Description" error="">
+                              <textarea
+                                value={newBehaviorIncident.description}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, description: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                                rows="3"
+                                placeholder="Describe the incident..."
+                              />
+                            </FormField>
+
+                            <FormField label="Action Taken (Optional)">
+                              <textarea
+                                value={newBehaviorIncident.actionTaken}
+                                onChange={(e) => setNewBehaviorIncident(prev => ({ ...prev, actionTaken: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                                rows="2"
+                                placeholder="What action was taken..."
+                              />
+                            </FormField>
+
+                            <div className="flex space-x-3 pt-4">
+                              <Button
+                                onClick={handleBehaviorFormSubmit}
+                                className="flex-1"
+                              >
+                                {editingBehavior ? 'Update Incident' : 'Log Incident'}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => {
+                                  setShowBehaviorForm(false);
+                                  setEditingBehavior(null);
+                                  setNewBehaviorIncident({
+                                    type: 'disciplinary',
+                                    category: 'Disruption',
+                                    severity: 'Medium',
+                                    description: '',
+                                    actionTaken: ''
+                                  });
+                                }}
+                                className="flex-1"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
+)}
+                  </div>
+                )}
+                
+                {/* Behavior Tab Content */}
                 {activeTab === "behavior" && (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
@@ -526,13 +733,11 @@ useEffect(() => {
                     )}
                   </div>
                 )}
-              </div>
             </div>
         </motion.div>
     </motion.div>
     </AnimatePresence>
     );
-  };
   const handleAddGrade = () => {
     if (!newGrade.assignmentName.trim() || !newGrade.score) {
       toast.error("Please fill in all required fields");
@@ -849,12 +1054,124 @@ const getGradeVariant = (percentage) => {
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-900">Recent Grades</h3>
 <Button onClick={() => setShowAddForm(true)} className="gap-2">
-                            <ApperIcon name="Plus" size={16} />
-                            Add Grade
-                        </Button>
+                        <ApperIcon name="Plus" size={16} />
+                        Add Grade
+                      </Button>
+                    </div>
                     
-                    {/* Grades list and form would go here - existing implementation */}
-                  </div>
+                    {/* Grades List */}
+                    <div className="space-y-4">
+                      {currentStudent.grades?.length === 0 ? (
+                        <Card className="p-8 text-center">
+                          <ApperIcon name="BookOpen" size={48} className="mx-auto text-gray-300 mb-4" />
+                          <h3 className="text-lg font-medium text-gray-600 mb-2">No Grades Yet</h3>
+                          <p className="text-gray-500">Start by adding the first grade for this student.</p>
+                        </Card>
+                      ) : (
+                        currentStudent.grades?.map((grade, index) => (
+                          <Card key={index} className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3">
+                                  <h4 className="font-semibold text-gray-900">{grade.assignmentName}</h4>
+                                  <Badge variant={getGradeVariant((grade.score / grade.maxScore) * 100)}>
+                                    {grade.score}/{grade.maxScore} ({((grade.score / grade.maxScore) * 100).toFixed(1)}%)
+                                  </Badge>
+                                  <span className="text-sm text-gray-500">{grade.category}</span>
+                                </div>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  {format(new Date(grade.date), 'MMM dd, yyyy')}
+                                </p>
+                              </div>
+                              <GradeIndicator percentage={(grade.score / grade.maxScore) * 100} />
+                            </div>
+                          </Card>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Add Grade Form */}
+                    {showAddForm && (
+                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        <Card className="w-full max-w-md">
+                          <CardHeader>
+                            <CardTitle className="flex items-center justify-between">
+                              Add New Grade
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowAddForm(false)}
+                              >
+                                <ApperIcon name="X" size={16} />
+                              </Button>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <FormField label="Assignment Name">
+                              <Input
+                                value={newGrade.assignmentName}
+                                onChange={(e) => setNewGrade(prev => ({ ...prev, assignmentName: e.target.value }))}
+                                placeholder="Enter assignment name"
+                              />
+                            </FormField>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField label="Score">
+                                <Input
+                                  type="number"
+                                  value={newGrade.score}
+                                  onChange={(e) => setNewGrade(prev => ({ ...prev, score: e.target.value }))}
+                                  placeholder="Score"
+                                />
+                              </FormField>
+                              <FormField label="Max Score">
+                                <Input
+                                  type="number"
+                                  value={newGrade.maxScore}
+                                  onChange={(e) => setNewGrade(prev => ({ ...prev, maxScore: e.target.value }))}
+                                  placeholder="Max score"
+                                />
+                              </FormField>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField label="Date">
+                                <Input
+                                  type="date"
+                                  value={newGrade.date}
+                                  onChange={(e) => setNewGrade(prev => ({ ...prev, date: e.target.value }))}
+                                />
+                              </FormField>
+                              <FormField label="Category">
+                                <select
+                                  value={newGrade.category}
+                                  onChange={(e) => setNewGrade(prev => ({ ...prev, category: e.target.value }))}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                >
+                                  <option value="Test">Test</option>
+                                  <option value="Assignment">Assignment</option>
+                                  <option value="Quiz">Quiz</option>
+                                  <option value="Project">Project</option>
+                                </select>
+                              </FormField>
+                            </div>
+
+                            <div className="flex space-x-3 pt-4">
+                              <Button onClick={handleAddGrade} className="flex-1">
+                                Add Grade
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => setShowAddForm(false)}
+                                className="flex-1"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
                 )}
                 
                 {/* Attendance Tab Content */}
@@ -871,12 +1188,209 @@ const getGradeVariant = (percentage) => {
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-900">Parent Contacts</h3>
 <Button onClick={() => setShowParentContactForm(true)} className="gap-2">
-                            <ApperIcon name="Plus" size={16} />
-                            Add Contact
-                        </Button>
+                        <ApperIcon name="Plus" size={16} />
+                        Add Contact
+                      </Button>
                     </div>
                     
-                    {/* Parent contacts list would go here - existing implementation */}
+                    {/* Parent Contacts List */}
+                    <div className="space-y-4">
+                      {currentStudent.parentContacts?.length === 0 ? (
+                        <Card className="p-8 text-center">
+                          <ApperIcon name="Users" size={48} className="mx-auto text-gray-300 mb-4" />
+                          <h3 className="text-lg font-medium text-gray-600 mb-2">No Parent Contacts</h3>
+                          <p className="text-gray-500">Add parent or guardian contact information.</p>
+                        </Card>
+                      ) : (
+                        currentStudent.parentContacts?.map((contact) => (
+                          <Card key={contact.Id} className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  <h4 className="font-semibold text-gray-900">
+                                    {contact.firstName} {contact.lastName}
+                                  </h4>
+                                  <Badge variant="outline">{contact.relationship}</Badge>
+                                  {contact.isPrimary && (
+                                    <Badge variant="default">Primary</Badge>
+                                  )}
+                                  {contact.emergencyContact && (
+                                    <Badge variant="destructive">Emergency</Badge>
+                                  )}
+                                </div>
+                                <div className="space-y-1 text-sm text-gray-600">
+                                  {contact.email && (
+                                    <div className="flex items-center gap-2">
+                                      <ApperIcon name="Mail" size={14} />
+                                      {contact.email}
+                                    </div>
+                                  )}
+                                  {contact.phone && (
+                                    <div className="flex items-center gap-2">
+                                      <ApperIcon name="Phone" size={14} />
+                                      {contact.phone}
+                                    </div>
+                                  )}
+                                  {contact.workPhone && (
+                                    <div className="flex items-center gap-2">
+                                      <ApperIcon name="Briefcase" size={14} />
+                                      {contact.workPhone}
+                                    </div>
+                                  )}
+                                  {contact.address && (
+                                    <div className="flex items-center gap-2">
+                                      <ApperIcon name="MapPin" size={14} />
+                                      {contact.address}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2 ml-4">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditParentContact(contact)}
+                                >
+                                  <ApperIcon name="Edit2" size={14} />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteParentContact(contact.Id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <ApperIcon name="Trash2" size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Parent Contact Form */}
+                    {showParentContactForm && (
+                      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        <Card className="w-full max-w-lg max-h-[80vh] overflow-y-auto">
+                          <CardHeader>
+                            <CardTitle className="flex items-center justify-between">
+                              {editingParentContact ? 'Edit Contact' : 'Add New Contact'}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleCancelParentContactForm}
+                              >
+                                <ApperIcon name="X" size={16} />
+                              </Button>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField label="First Name">
+                                <Input
+                                  value={newParentContact.firstName}
+                                  onChange={(e) => setNewParentContact(prev => ({ ...prev, firstName: e.target.value }))}
+                                  placeholder="First name"
+                                />
+                              </FormField>
+                              <FormField label="Last Name">
+                                <Input
+                                  value={newParentContact.lastName}
+                                  onChange={(e) => setNewParentContact(prev => ({ ...prev, lastName: e.target.value }))}
+                                  placeholder="Last name"
+                                />
+                              </FormField>
+                            </div>
+
+                            <FormField label="Relationship">
+                              <select
+                                value={newParentContact.relationship}
+                                onChange={(e) => setNewParentContact(prev => ({ ...prev, relationship: e.target.value }))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                <option value="Parent">Parent</option>
+                                <option value="Guardian">Guardian</option>
+                                <option value="Grandparent">Grandparent</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            </FormField>
+
+                            <FormField label="Email">
+                              <Input
+                                type="email"
+                                value={newParentContact.email}
+                                onChange={(e) => setNewParentContact(prev => ({ ...prev, email: e.target.value }))}
+                                placeholder="Email address"
+                              />
+                            </FormField>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField label="Phone">
+                                <Input
+                                  type="tel"
+                                  value={newParentContact.phone}
+                                  onChange={(e) => setNewParentContact(prev => ({ ...prev, phone: e.target.value }))}
+                                  placeholder="Phone number"
+                                />
+                              </FormField>
+                              <FormField label="Work Phone">
+                                <Input
+                                  type="tel"
+                                  value={newParentContact.workPhone}
+                                  onChange={(e) => setNewParentContact(prev => ({ ...prev, workPhone: e.target.value }))}
+                                  placeholder="Work phone"
+                                />
+                              </FormField>
+                            </div>
+
+                            <FormField label="Address">
+                              <Input
+                                value={newParentContact.address}
+                                onChange={(e) => setNewParentContact(prev => ({ ...prev, address: e.target.value }))}
+                                placeholder="Home address"
+                              />
+                            </FormField>
+
+                            <div className="flex items-center space-x-4">
+                              <label className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={newParentContact.isPrimary}
+                                  onChange={(e) => setNewParentContact(prev => ({ ...prev, isPrimary: e.target.checked }))}
+                                  className="rounded border-gray-300 focus:ring-primary-500"
+                                />
+                                <span className="text-sm">Primary Contact</span>
+                              </label>
+                              <label className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={newParentContact.emergencyContact}
+                                  onChange={(e) => setNewParentContact(prev => ({ ...prev, emergencyContact: e.target.checked }))}
+                                  className="rounded border-gray-300 focus:ring-primary-500"
+                                />
+                                <span className="text-sm">Emergency Contact</span>
+                              </label>
+                            </div>
+
+                            <div className="flex space-x-3 pt-4">
+                              <Button 
+                                onClick={editingParentContact ? handleUpdateParentContact : handleAddParentContact}
+                                className="flex-1"
+                              >
+                                {editingParentContact ? 'Update Contact' : 'Add Contact'}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={handleCancelParentContactForm}
+                                className="flex-1"
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -886,27 +1400,26 @@ const getGradeVariant = (percentage) => {
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-900">Student Notes</h3>
 <Button 
-                            onClick={handleNotesUpdate} 
-                            disabled={isSavingNotes}
-                            className="gap-2"
-                        >
-                            <ApperIcon name="Save" size={16} />
-                            {isSavingNotes ? 'Saving...' : 'Save Notes'}
-                        </Button>
+                        onClick={handleNotesUpdate} 
+                        disabled={isSavingNotes}
+                        className="gap-2"
+                      >
+                        <ApperIcon name="Save" size={16} />
+                        {isSavingNotes ? 'Saving...' : 'Save Notes'}
+                      </Button>
                     </div>
                     
                     <textarea
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
-                        placeholder="Add notes about this student..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                      placeholder="Add notes about this student..."
                     />
                   </div>
-)}
+                )}
             </div>
         </motion.div>
     </motion.div>
 </AnimatePresence>
-  );
-};
+);
 };
