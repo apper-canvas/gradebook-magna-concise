@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
 import { studentService } from "@/services/api/studentService";
 import ApperIcon from "@/components/ApperIcon";
 import GradeIndicator from "@/components/molecules/GradeIndicator";
@@ -16,6 +16,9 @@ const StudentDetailPanel = ({ student, onClose, onGradeAdd }) => {
 const [showAddForm, setShowAddForm] = useState(false);
   const [notes, setNotes] = useState(student.notes || "");
   const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState(new Date());
+  const [attendanceHistory, setAttendanceHistory] = useState({});
+  const [loadingAttendance, setLoadingAttendance] = useState(false);
   const [newGrade, setNewGrade] = useState({
     assignmentName: "",
     score: "",
@@ -23,6 +26,170 @@ const [showAddForm, setShowAddForm] = useState(false);
     date: new Date().toISOString().split("T")[0],
     category: "Test"
   });
+
+  useEffect(() => {
+    loadAttendanceHistory();
+  }, [student.Id]);
+
+  const loadAttendanceHistory = async () => {
+    setLoadingAttendance(true);
+    try {
+      const history = await studentService.getStudentAttendanceHistory(student.Id);
+      setAttendanceHistory(history);
+    } catch (error) {
+      console.error("Failed to load attendance history:", error);
+      toast.error("Failed to load attendance history");
+    } finally {
+      setLoadingAttendance(false);
+    }
+  };
+
+  const getAttendanceStatusForDate = (date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    return attendanceHistory[dateKey] || null;
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Present":
+        return "bg-success-500";
+      case "Late":
+        return "bg-warning-500";
+      case "Absent":
+        return "bg-error-500";
+      case "Excused":
+        return "bg-primary-500";
+      default:
+        return "bg-slate-200";
+    }
+  };
+
+  const getStatusTextColor = (status) => {
+    switch (status) {
+      case "Present":
+        return "text-success-700";
+      case "Late":
+        return "text-warning-700";
+      case "Absent":
+        return "text-error-700";
+      case "Excused":
+        return "text-primary-700";
+      default:
+        return "text-slate-500";
+    }
+  };
+
+  const handleDateClick = (date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    toast.info(`Viewing attendance for ${format(date, 'MMMM d, yyyy')}`);
+    // Here you could emit an event or callback to navigate to that specific date
+    // For now, we'll show a toast notification
+  };
+
+  const renderCalendar = () => {
+    const monthStart = startOfMonth(currentCalendarMonth);
+    const monthEnd = endOfMonth(currentCalendarMonth);
+    const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    
+    // Get the first day of the month and calculate offset for the calendar grid
+    const startDay = getDay(monthStart);
+    const emptyDays = Array(startDay).fill(null);
+    
+    const allDays = [...emptyDays, ...daysInMonth];
+
+    return (
+      <div className="space-y-4">
+        {/* Calendar Header */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentCalendarMonth(subMonths(currentCalendarMonth, 1))}
+            className="h-8 w-8 p-0"
+          >
+            <ApperIcon name="ChevronLeft" className="h-4 w-4" />
+          </Button>
+          
+          <h3 className="text-lg font-semibold text-slate-900">
+            {format(currentCalendarMonth, 'MMMM yyyy')}
+          </h3>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentCalendarMonth(addMonths(currentCalendarMonth, 1))}
+            className="h-8 w-8 p-0"
+          >
+            <ApperIcon name="ChevronRight" className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Days of Week Header */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <div key={day} className="text-center text-xs font-medium text-slate-600 py-2">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {allDays.map((day, index) => {
+            if (!day) {
+              return <div key={index} className="h-10"></div>;
+            }
+
+            const status = getAttendanceStatusForDate(day);
+            const isCurrentMonth = isSameMonth(day, currentCalendarMonth);
+            const isToday = isSameDay(day, new Date());
+            
+            return (
+              <button
+                key={day.toISOString()}
+                onClick={() => handleDateClick(day)}
+                disabled={!isCurrentMonth}
+                className={`
+                  h-10 w-10 text-sm font-medium rounded-lg transition-all duration-200
+                  ${isCurrentMonth ? 'hover:bg-slate-100' : 'opacity-30 cursor-not-allowed'}
+                  ${isToday ? 'ring-2 ring-primary-500 ring-offset-1' : ''}
+                  ${status ? getStatusColor(status) + ' text-white hover:opacity-90' : 'text-slate-700 hover:bg-slate-100'}
+                  ${!status && isCurrentMonth ? 'border border-slate-200' : ''}
+                `}
+                title={status ? `${format(day, 'MMM d')}: ${status}` : format(day, 'MMM d')}
+              >
+                {format(day, 'd')}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Legend */}
+        <div className="flex flex-wrap gap-4 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-success-500"></div>
+            <span className="text-slate-600">Present</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-warning-500"></div>
+            <span className="text-slate-600">Late</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-error-500"></div>
+            <span className="text-slate-600">Absent</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded bg-primary-500"></div>
+            <span className="text-slate-600">Excused</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded border border-slate-300"></div>
+            <span className="text-slate-600">No Record</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
   const handleAddGrade = () => {
     if (!newGrade.assignmentName.trim() || !newGrade.score) {
       toast.error("Please fill in all required fields");
@@ -230,6 +397,26 @@ const handleNotesUpdate = async () => {
                     </div>
                   )}
                 </div>
+              </CardContent>
+</Card>
+
+            {/* Attendance Calendar */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ApperIcon name="Calendar" className="h-5 w-5 text-primary-600" />
+                  Attendance Calendar
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingAttendance ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"></div>
+                    <span className="ml-3 text-slate-600">Loading attendance history...</span>
+                  </div>
+                ) : (
+                  renderCalendar()
+                )}
               </CardContent>
             </Card>
 

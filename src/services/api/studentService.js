@@ -223,7 +223,20 @@ async getAttendanceForDate(date) {
 
     return totalDays > 0 ? (presentDays / totalDays) * 100 : 95; // Default to 95% if no records
   }
-
+async getStudentAttendanceHistory(studentId) {
+    await delay(200);
+    const history = {};
+    
+    // Get all attendance records for this student across all dates
+    for (const [date, dayAttendance] of this.attendance.entries()) {
+      const status = dayAttendance.get(parseInt(studentId));
+      if (status) {
+        history[date] = status;
+      }
+    }
+    
+    return history;
+  }
   async updateAttendance(studentId, attendancePercentage) {
     await delay(200);
     const studentIndex = this.students.findIndex(s => s.Id === parseInt(studentId));
