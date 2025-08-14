@@ -17,7 +17,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 102,
         "studentId": "1",
@@ -35,6 +35,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 104,
+        "studentId": "1",
+        "assignmentName": "Science Project",
+        "score": 92,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 105,
+        "studentId": "1",
+        "assignmentName": "Class Discussion",
+        "score": 95,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   },
@@ -56,7 +74,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 202,
         "studentId": "2",
@@ -74,6 +92,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 204,
+        "studentId": "2",
+        "assignmentName": "History Project",
+        "score": 85,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 205,
+        "studentId": "2",
+        "assignmentName": "Class Participation",
+        "score": 88,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   },
@@ -95,7 +131,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 302,
         "studentId": "3",
@@ -113,6 +149,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 304,
+        "studentId": "3",
+        "assignmentName": "Art Project",
+        "score": 98,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 305,
+        "studentId": "3",
+        "assignmentName": "Group Discussion",
+        "score": 96,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   },
@@ -134,7 +188,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 402,
         "studentId": "4",
@@ -152,6 +206,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 404,
+        "studentId": "4",
+        "assignmentName": "Lab Project",
+        "score": 77,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 405,
+        "studentId": "4",
+        "assignmentName": "Class Engagement",
+        "score": 82,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   },
@@ -173,7 +245,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 502,
         "studentId": "5",
@@ -191,6 +263,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 504,
+        "studentId": "5",
+        "assignmentName": "Research Project",
+        "score": 89,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 505,
+        "studentId": "5",
+        "assignmentName": "Presentation",
+        "score": 94,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   },
@@ -212,7 +302,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 602,
         "studentId": "6",
@@ -230,6 +320,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 604,
+        "studentId": "6",
+        "assignmentName": "Book Report",
+        "score": 84,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 605,
+        "studentId": "6",
+        "assignmentName": "Debate Participation",
+        "score": 87,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   },
@@ -251,7 +359,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 702,
         "studentId": "7",
@@ -269,6 +377,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 704,
+        "studentId": "7",
+        "assignmentName": "Final Project",
+        "score": 90,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 705,
+        "studentId": "7",
+        "assignmentName": "Class Discussion",
+        "score": 86,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   },
@@ -290,7 +416,7 @@
         "maxScore": 100,
         "date": "2024-01-15",
         "category": "Quiz"
-      },
+},
       {
         "Id": 802,
         "studentId": "8",
@@ -308,6 +434,24 @@
         "maxScore": 100,
         "date": "2024-01-10",
         "category": "Test"
+      },
+      {
+        "Id": 804,
+        "studentId": "8",
+        "assignmentName": "Term Paper",
+        "score": 89,
+        "maxScore": 100,
+        "date": "2024-01-08",
+        "category": "Project"
+      },
+      {
+        "Id": 805,
+        "studentId": "8",
+        "assignmentName": "Peer Review",
+        "score": 91,
+        "maxScore": 100,
+        "date": "2024-01-05",
+        "category": "Participation"
       }
     ]
   }

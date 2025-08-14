@@ -235,16 +235,16 @@ const StudentsPage = () => {
     );
   }
 
-  const getClassStats = () => {
+const getClassStats = () => {
     if (students.length === 0) return { avgGrade: 0, avgAttendance: 0, totalAssignments: 0 };
     
+    // Use weighted grade averages for class statistics
     const avgGrade = students.reduce((sum, s) => sum + s.gradeAverage, 0) / students.length;
     const avgAttendance = students.reduce((sum, s) => sum + s.attendancePercentage, 0) / students.length;
     const totalAssignments = students.reduce((sum, s) => sum + s.grades.length, 0);
     
     return { avgGrade, avgAttendance, totalAssignments };
   };
-
   const stats = getClassStats();
 
   if (loading) {
